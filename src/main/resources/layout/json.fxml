@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane prefHeight="700" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="io.devpl.fxui.controller.JsonView">
+  <top>
+    <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <Button mnemonicParsing="false" text="Button" onAction="#convert"/>
+      <TextField fx:id="packageNameTextField"/>
+      <TextField fx:id="classNameTextField"/>
+      <TextField fx:id="addJavadocTextField"/>
+    </ToolBar>
+  </top>
+  <left>
+    <TextArea fx:id="textArea" minWidth="100" BorderPane.alignment="CENTER"/>
+  </left>
+  <right>
+    <TextArea fx:id="rightArea" minWidth="100" BorderPane.alignment="CENTER"/>
+  </right>
+</BorderPane>

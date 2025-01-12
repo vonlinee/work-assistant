@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane
+    stylesheets="@/static/css/global_style.css"
+    xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="io.devpl.fxui.controller.dbconn.NewConnView">
+
+  <center>
+    <TabPane tabClosingPolicy="UNAVAILABLE">
+      <!-- fx:include可以自动注入Controller，只要名称为${fx:id}Controller-->
+      <Tab fx:id="tabTcpIpConnection" text="TCP/IP">
+        <fx:include source="basicConnection.fxml"/>
+      </Tab>
+      <Tab fx:id="tabSshConnection" text="SSH">
+        <fx:include source="sshBasedConnection.fxml"/>
+      </Tab>
+    </TabPane>
+  </center>
+  <bottom>
+    <AnchorPane style="-fx-background-color: #d2cccc" minHeight="60" minWidth="400" maxHeight="60">
+      <Button styleClass="btn-success" HBox.hgrow="NEVER" mnemonicParsing="false" onAction="#testConnection"
+              text="测试连接" AnchorPane.leftAnchor="20" AnchorPane.topAnchor="15" AnchorPane.bottomAnchor="15">
+      </Button>
+      <Button styleClass="btn-success" minWidth="60" maxWidth="60" HBox.hgrow="NEVER" mnemonicParsing="false"
+              onAction="#saveConnection"
+              text="保存" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="15" AnchorPane.bottomAnchor="15">
+      </Button>
+    </AnchorPane>
+  </bottom>
+</BorderPane>

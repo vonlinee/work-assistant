@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<SplitPane
+    dividerPositions="0.3"
+    prefHeight="600.0" prefWidth="960.0"
+    xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="io.devpl.fxui.controller.fields.FieldsManageView">
+
+    <BorderPane>
+        <top>
+            <VBox>
+                <HBox>
+                    <CheckBox fx:id="chbAllowDuplicateFieldName" text="允许重复字段名"/>
+                </HBox>
+            </VBox>
+        </top>
+        <center>
+            <VBox fx:id="vbox">
+                <HBox>
+                    <TextField fx:id="txfSearchField"/>
+                    <Button fx:id="btnSearchSubmit" text="Search"/>
+                </HBox>
+            </VBox>
+        </center>
+        <bottom>
+            <Button text="确定"/>
+        </bottom>
+    </BorderPane>
+    <BorderPane>
+        <top>
+            <HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
+                <padding>
+                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                </padding>
+                <Label prefHeight="25.0" prefWidth="115.0" text="字段导入">
+                    <font>
+                        <Font name="System Italic" size="12.0"/>
+                    </font>
+                </Label>
+            </HBox>
+        </top>
+        <center>
+            <TabPane fx:id="tbpImportContent">
+            </TabPane>
+        </center>
+        <bottom>
+            <AnchorPane prefHeight="51.0" BorderPane.alignment="CENTER">
+                <ButtonBar layoutX="380.0" layoutY="5.0" prefHeight="40.0" prefWidth="200.0"
+                           AnchorPane.rightAnchor="20"
+                           AnchorPane.topAnchor="10" AnchorPane.bottomAnchor="10">
+                    <buttons>
+                        <Button mnemonicParsing="false" text="取消"/>
+                        <Button mnemonicParsing="false" text="确认" onAction="#parse"/>
+                    </buttons>
+                </ButtonBar>
+                <ChoiceBox layoutX="78.0" layoutY="13.0" prefWidth="150.0"/>
+                <Label layoutX="14.0" layoutY="17.0" prefHeight="15.0" prefWidth="62.0" text="覆盖模式"/>
+            </AnchorPane>
+        </bottom>
+    </BorderPane>
+</SplitPane>

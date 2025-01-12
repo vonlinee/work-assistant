@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane fx:id="root" prefWidth="800.0" prefHeight="600.0" xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="io.devpl.fxui.controller.TableCustomizationView">
+    <top>
+        <HBox>
+            <BorderPane.margin>
+                <Insets topRightBottomLeft="5"/>
+            </BorderPane.margin>
+            <Label fx:id="labelCurrentTableName" prefHeight="15.0" prefWidth="95.0"/>
+        </HBox>
+    </top>
+
+    <center>
+        <TableView fx:id="columnListView" editable="true">
+            <columns>
+                <TableColumn fx:id="checkedColumn" prefWidth="75.0" text="Checked"/>
+                <TableColumn fx:id="columnNameColumn" prefWidth="132.0" text="Column Name"/>
+                <TableColumn fx:id="jdbcTypeColumn" prefWidth="122.0" text="JDBC Type"/>
+                <TableColumn fx:id="javaTypeColumn" prefWidth="121.0" text="Java Type"/>
+                <TableColumn fx:id="propertyNameColumn" prefWidth="104.0" text="Property Name"/>
+                <TableColumn fx:id="typeHandlerColumn" prefWidth="136.0" text="Type Handler"/>
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+        </TableView>
+    </center>
+    <bottom>
+        <HBox>
+            <BorderPane.margin>
+                <Insets topRightBottomLeft="5"/>
+            </BorderPane.margin>
+            <Button focusTraversable="false" mnemonicParsing="false" onAction="#configAction" text="属性配置"/>
+            <Button focusTraversable="false" mnemonicParsing="false" onAction="#applyConfig" text="确认"/>
+        </HBox>
+    </bottom>
+</BorderPane>

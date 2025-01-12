@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:id="root"
+            prefWidth="600.0"
+            prefHeight="400.0"
+            fx:controller="io.devpl.fxui.controller.mbg.ProjectConfigurationView">
+
+  <top>
+    <ToolBar>
+      <Button fx:id="btnRefresh" text="加载" onAction="#refreshConfig"/>
+      <Button fx:id="btnApply" text="确认" onAction="#applyConfig"/>
+    </ToolBar>
+  </top>
+
+  <center>
+    <TableView fx:id="tbvConfig">
+      <columns>
+        <TableColumn text="名称" fx:id="tblcName"/>
+        <TableColumn text="值" fx:id="tblcValue"/>
+      </columns>
+    </TableView>
+  </center>
+
+</BorderPane>

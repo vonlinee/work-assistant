@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <properties resource="jdbc.properties"/>
+    <settings>
+        <!-- 打印查询语句 logImpl 可选的值有：SLF4J、LOG4J、LOG4J2、JDK_LOGGING、COMMONS_LOGGING、STDOUT_LOGGING、NO_LOGGING，
+        或者是实现了接口 org.apache.ibatis.logging.Log 的，且构造方法是以字符串为参数的类的完全限定名。-->
+        <setting name="logImpl" value="NO_LOGGING"/>
+        <!-- 控制全局缓存（二级缓存）-->
+        <setting name="cacheEnabled" value="false"/>
+        <!-- 延迟加载的全局开关。当开启时，所有关联对象都会延迟加载。默认 false  -->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!-- 当开启时，任何方法的调用都会加载该对象的所有属性。默认 false，可通过select标签的 fetchType来覆盖-->
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <!--  Mybatis 创建具有延迟加载能力的对象所用到的代理工具，默认 JAVASSIST, CGLIB(需要对应的cglib依赖) -->
+        <setting name="proxyFactory" value="JAVASSIST"/>
+        <!-- STATEMENT级别的缓存，使一级缓存，只针对当前执行的这一statement有效 STATEMENT 表示关闭一级缓存 -->
+        <setting name="localCacheScope" value="STATEMENT"/>
+        <!--        <setting name="localCacheScope" value="SESSION"/>-->
+    </settings>
+    <!-- 类型别名 -->
+    <typeAliases>
+    </typeAliases>
+
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <property name="helperDialect " value="mysql"/>
+        </plugin>
+    </plugins>
+
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/><!-- 单独使用时配置成MANAGED没有事务 -->
+            <dataSource type="POOLED">
+                <property name="driver" value="${mysql.jdbc.driver}"/>
+                <property name="url" value="${mysql.jdbc.url}"/>
+                <property name="username" value="${mysql.jdbc.username}"/>
+                <property name="password" value="${mysql.jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <mapper resource="mapper/DataTypeMapper.xml"/>
+        <mapper resource="mapper/FieldSpecMapper.xml"/>
+    </mappers>
+</configuration>

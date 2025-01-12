@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane
+    fx:id="bopRoot"
+    xmlns="http://javafx.com/javafx"
+    fx:controller="io.devpl.fxui.controller.fields.JavaImportView"
+    xmlns:fx="http://javafx.com/fxml">
+
+  <top>
+    <ToolBar>
+      <Button text="选择文件" onAction="#chooseFile"/>
+    </ToolBar>
+  </top>
+
+  <center>
+  </center>
+</BorderPane>

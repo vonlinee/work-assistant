@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<BorderPane
+        fx:id="bopRoot"
+        fx:controller="io.devpl.fxui.controller.TextHandleView"
+        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+        prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+    <center>
+        <SplitPane fx:id="sppTxtArea" prefHeight="160.0" prefWidth="200.0"
+                   BorderPane.alignment="CENTER">
+            <Group fx:id="grpLeft">
+                <TextArea fx:id="ttaLeft" prefHeight="200.0" prefWidth="200.0"/>
+            </Group>
+            <Group fx:id="grpRight">
+                <TextArea fx:id="ttaRight" prefHeight="200.0" prefWidth="200.0"/>
+            </Group>
+        </SplitPane>
+    </center>
+    <bottom>
+        <FlowPane fx:id="flpBottomBtnGroup" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <Button fx:id="btnMavenToGradle" text="Maven->Gradle"/>
+            <Button fx:id="btnGradleToMaven" text="Gradle->Maven"/>
+        </FlowPane>
+    </bottom>
+</BorderPane>

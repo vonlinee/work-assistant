@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.SplitPane?>
+<BorderPane fx:id="bopRoot"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="io.devpl.fxui.controller.domain.ClassDefView">
+    <top>
+        <ToolBar prefHeight="40.0" BorderPane.alignment="CENTER">
+            <Button mnemonicParsing="false" text="新增" onAction="#addDefaultClass"/>
+            <Button mnemonicParsing="false" text="修改"/>
+            <Button mnemonicParsing="false" text="删除"/>
+            <Button mnemonicParsing="false" text="导入" onAction="#showFieldImportModal"/>
+        </ToolBar>
+    </top>
+
+    <center>
+        <SplitPane fx:id="sppCenter"/>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+         prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/19"
+         xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.devpl.fxui.view.FileHelperView">
+    <Tab text="文件合并">
+
+        <BorderPane prefHeight="200.0" prefWidth="200.0">
+            <center>
+                <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+                    <HBox prefHeight="38.0" prefWidth="302.0">
+                        <Button mnemonicParsing="false" text="选择文件" onAction="#selectFile"/>
+                        <TextField fx:id="txfInitDir"/>
+                    </HBox>
+                    <HBox prefHeight="36.0" prefWidth="302.0">
+                        <Label text="目标文件"/>
+                        <TextField/>
+                    </HBox>
+                </VBox>
+            </center>
+            <left>
+                <ListView fx:id="lsvFiles" prefHeight="371.0" prefWidth="298.0"
+                          BorderPane.alignment="CENTER"/>
+            </left>
+        </BorderPane>
+    </Tab>
+    <Tab text="文件拆分"/>
+</TabPane>

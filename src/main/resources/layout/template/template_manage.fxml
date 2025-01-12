@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="io.devpl.fxui.controller.template.TemplateManageView"
+            prefHeight="400.0" prefWidth="600.0">
+
+  <top>
+    <VBox>
+      <HBox alignment="CENTER_LEFT" spacing="5">
+        <Label text="模板存放目录"/>
+        <TextField/>
+        <Button text="选择" onAction="#openFileChooser"/>
+        <Button text="解析" onMouseClicked="#parseTemplate"/>
+      </HBox>
+    </VBox>
+  </top>
+
+  <center>
+    <SplitPane dividerPositions="0.6">
+      <VBox fx:id="vboxRight">
+
+      </VBox>
+    </SplitPane>
+  </center>
+</BorderPane>

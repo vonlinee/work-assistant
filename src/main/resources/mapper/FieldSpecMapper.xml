@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.devpl.fxui.mapper.FieldSpecMapper">
+
+  <!-- 通用查询映射结果 -->
+  <resultMap id="BaseResultMap" type="io.devpl.fxui.model.FieldSpec">
+  </resultMap>
+
+  <insert id="insertBatch" parameterType="list">
+    INSERT INTO field_spec
+    (field_id, field_name, data_type, description, field_value)
+    VALUES
+    <foreach collection="list" item="item" separator="," open="" close="">
+      (#{item.fieldId}, #{item.fieldName}, #{item.dataType}, #{item.fieldDescription}, #{item.fieldValue})
+    </foreach>
+  </insert>
+</mapper>
