@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.BorderPane?>
 <BorderPane prefHeight="700" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="io.devpl.fxui.controller.JsonView">
+            fx:controller="org.example.workassistant.fxui.controller.JsonView">
   <top>
     <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
       <Button mnemonicParsing="false" text="Button" onAction="#convert"/>

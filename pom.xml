@@ -356,7 +356,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>org.example.workassistant/io.devpl.fxui.Launcher</mainClass>
+                            <mainClass>workassistant/org.example.workassistant.Main</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>

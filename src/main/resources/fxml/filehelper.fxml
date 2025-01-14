@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
          prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/19"
-         xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.devpl.fxui.view.FileHelperView">
+         xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.workassistant.fxui.view.FileHelperView">
     <Tab text="文件合并">
 
         <BorderPane prefHeight="200.0" prefWidth="200.0">

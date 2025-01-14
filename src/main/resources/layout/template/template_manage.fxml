@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="io.devpl.fxui.controller.template.TemplateManageView"
+            fx:controller="org.example.workassistant.fxui.controller.template.TemplateManageView"
             prefHeight="400.0" prefWidth="600.0">
 
   <top>

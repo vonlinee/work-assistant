@@ -6,7 +6,7 @@
 <GridPane
         xmlns="http://javafx.com/javafx/17"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="io.devpl.fxui.controller.dbconn.DbConnView" vgap="5" hgap="5">
+        fx:controller="org.example.workassistant.fxui.controller.dbconn.DbConnView" vgap="5" hgap="5">
     <padding>
         <Insets topRightBottomLeft="10"/>
     </padding>

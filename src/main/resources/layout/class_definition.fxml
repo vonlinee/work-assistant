@@ -6,7 +6,7 @@
 <?import javafx.scene.control.SplitPane?>
 <BorderPane fx:id="bopRoot"
             xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="io.devpl.fxui.controller.domain.ClassDefView">
+            fx:controller="org.example.workassistant.fxui.controller.domain.ClassDefView">
     <top>
         <ToolBar prefHeight="40.0" BorderPane.alignment="CENTER">
             <Button mnemonicParsing="false" text="新增" onAction="#addDefaultClass"/>

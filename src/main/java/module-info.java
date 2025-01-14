@@ -1,4 +1,4 @@
-module org.example.workassistant {
+module workassistant {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
@@ -11,7 +11,7 @@ module org.example.workassistant {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires java.sql;
-    requires static lombok;
+    requires lombok;
     requires org.mybatis.generator;
     requires org.slf4j;
     requires annotations;
@@ -61,4 +61,6 @@ module org.example.workassistant {
 
     opens org.example.workassistant to javafx.fxml;
     exports org.example.workassistant;
+    exports org.example.workassistant.fxui.controller;
+    opens org.example.workassistant.fxui.controller to javafx.fxml;
 }

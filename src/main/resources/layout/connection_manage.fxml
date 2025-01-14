@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.BorderPane?>
 <BorderPane xmlns="http://javafx.com/javafx/17" prefWidth="800.0" prefHeight="450.0" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="io.devpl.fxui.controller.dbconn.ConnManageView">
+            fx:controller="org.example.workassistant.fxui.controller.dbconn.ConnManageView">
 
     <top>
         <ToolBar>
