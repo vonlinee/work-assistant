@@ -28,7 +28,7 @@ public class CodeMirrorEditor implements CodeEditor {
      */
     private ScheduledExecutorService executor;
 
-    static final String CODE_MIRROR_INDEX_HTML = "codemirror/index.html";
+    static final String CODE_MIRROR_INDEX_HTML = "/codemirror/index.html";
 
     /**
      * 自动补全文本
@@ -49,7 +49,7 @@ public class CodeMirrorEditor implements CodeEditor {
     @Override
     public void init(Runnable... runAfterLoading) {
         try {
-            URL resource = getClass().getClassLoader().getResource(CODE_MIRROR_INDEX_HTML);
+            URL resource = getClass().getResource(CODE_MIRROR_INDEX_HTML);
             if (resource == null) {
                 throw new RuntimeException("cannot find code mirror index.html");
             }

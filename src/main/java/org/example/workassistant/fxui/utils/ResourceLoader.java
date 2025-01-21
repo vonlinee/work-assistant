@@ -2,6 +2,7 @@ package org.example.workassistant.fxui.utils;
 
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -19,10 +20,16 @@ public class ResourceLoader {
      * @return 文件URL
      */
     public static URL load(String name) {
-        ClassPathResource resource = new ClassPathResource("/" + name);
+        ClassPathResource resource = new ClassPathResource(name);
         try {
-            Path path = Paths.get(resource.getFile().toURI());
-            return path.toUri().toURL();
+            URL url = null;
+            if (resource.exists()) {
+                url = resource.getURL();
+            }
+            if (url == null) {
+                url = ResourceLoader.class.getResource("/" + name);
+            }
+            return url;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

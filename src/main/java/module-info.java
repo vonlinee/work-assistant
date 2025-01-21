@@ -60,7 +60,19 @@ module workassistant {
     requires spring.beans;
 
     opens org.example.workassistant to javafx.fxml;
+    opens org.example.workassistant.fxui.controller.domain to javafx.base;
+    opens org.example.workassistant.fxui.controller.dbconn to javafx.fxml;
+    opens org.example.workassistant.fxui.controller.expression to javafx.fxml;
+    opens org.example.workassistant.fxui.controller.mbg to javafx.fxml;
+    opens org.example.workassistant.fxui.controller.fields to javafx.fxml;
+    opens org.example.workassistant.fxui.controller.template to javafx.fxml;
+
     exports org.example.workassistant;
     exports org.example.workassistant.fxui.controller;
-    opens org.example.workassistant.fxui.controller to javafx.fxml;
+    exports org.example.workassistant.fxui.controller.dbconn to javafx.fxml;
+    exports org.example.workassistant.fxui.controller.domain to javafx.fxml;
+    exports org.example.workassistant.fxui.controller.expression to javafx.fxml;
+    exports org.example.workassistant.fxui.controller.mbg to javafx.fxml;
+    exports org.example.workassistant.fxui.controller.fields to javafx.fxml;
+    exports org.example.workassistant.fxui.controller.template to javafx.fxml;
 }

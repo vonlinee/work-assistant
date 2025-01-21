@@ -1,10 +1,21 @@
 package org.example.workassistant;
 
+import org.example.workassistant.fxui.app.JvmTool;
+import org.example.workassistant.fxui.app.MavenTool;
+import org.example.workassistant.fxui.components.RouterView;
 import org.example.workassistant.fxui.controller.dbconn.ConnManageView;
+import org.example.workassistant.fxui.controller.domain.ClassDefView;
+import org.example.workassistant.fxui.controller.domain.TypeMappingTable;
+import org.example.workassistant.fxui.controller.expression.ExpressionEngineView;
+import org.example.workassistant.fxui.controller.fields.FieldsManageView;
+import org.example.workassistant.fxui.controller.mbg.MyBatisCodeGenerationView;
+import org.example.workassistant.fxui.controller.template.TemplateManageView;
 import org.example.workassistant.fxui.fxtras.mvvm.View;
 import org.example.workassistant.fxui.layout.LayoutPane;
 import org.example.workassistant.fxui.layout.menu.NavigationMenu;
+import org.example.workassistant.fxui.tools.mybatis.MyBatisXmlToolPane;
 import org.example.workassistant.fxui.utils.FXUtils;
+import org.example.workassistant.fxui.view.DataTypeInfoTableView;
 import org.example.workassistant.fxui.view.FileTreeView;
 import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
@@ -34,19 +45,19 @@ public class Main extends Application {
         System.out.println(resource);
 
         NavigationMenu menu1 = new NavigationMenu("连接信息", View.load(ConnManageView.class));
-//        NavigationMenu menu = new NavigationMenu("开发工具", null);
-//        menu.addChild("代码生成", RouterView.of(View.load(MyBatisCodeGenerationView.class)));
-//        menu.addChild("MyBatis工具", RouterView.of(new MyBatisXmlToolPane()));
-//        menu.addChild("领域模型", RouterView.of(View.load(ClassDefView.class)));
-//        menu.addChild("类型映射", RouterView.of(new TypeMappingTable()));
-//        menu.addChild("数据类型", RouterView.of(new DataTypeInfoTableView()));
-//        menu.addChild("字段管理", RouterView.of(View.load(FieldsManageView.class)));
-//        menu.addChild("模板管理", RouterView.of(View.load(TemplateManageView.class)));
-//        menu.addChild("表达式引擎", RouterView.of(View.load(ExpressionEngineView.class)));
-//        menu.addChild("Maven", RouterView.of(new MavenTool()));
-//        menu.addChild("JVM工具", RouterView.of(new JvmTool()));
+        NavigationMenu menu = new NavigationMenu("开发工具", null);
+        menu.addChild("代码生成", RouterView.of(View.load(MyBatisCodeGenerationView.class)));
+        menu.addChild("MyBatis工具", RouterView.of(new MyBatisXmlToolPane()));
+        menu.addChild("领域模型", RouterView.of(View.load(ClassDefView.class)));
+        menu.addChild("类型映射", RouterView.of(new TypeMappingTable()));
+        menu.addChild("数据类型", RouterView.of(new DataTypeInfoTableView()));
+        menu.addChild("字段管理", RouterView.of(View.load(FieldsManageView.class)));
+        menu.addChild("模板管理", RouterView.of(View.load(TemplateManageView.class)));
+        menu.addChild("表达式引擎", RouterView.of(View.load(ExpressionEngineView.class)));
+        menu.addChild("Maven", RouterView.of(new MavenTool()));
+        menu.addChild("JVM工具", RouterView.of(new JvmTool()));
 
-//        layoutPane.addNavigationMenu(menu1, menu);
+        layoutPane.addNavigationMenu(menu1, menu);
 
         root.setTop(topBar());
         root.setCenter(layoutPane);

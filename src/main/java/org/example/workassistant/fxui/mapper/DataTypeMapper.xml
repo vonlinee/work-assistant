@@ -45,7 +45,7 @@
         WHERE id = #{id}
     </delete>
 
-    <select id="selectPage" resultMap="BaseResultMap">
+    <select id="selectPage" resultType="org.example.workassistant.fxui.view.DataTypeItem">
         SELECT *
         FROM data_type_item
     </select>

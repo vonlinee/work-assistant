@@ -321,6 +321,13 @@
 
         <resources>
             <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
                 <directory>src/main/resources</directory>
                 <includes>
                     <include>**/*.fxml</include>
@@ -363,6 +370,14 @@
                             <noManPages>true</noManPages>
                             <stripDebug>true</stripDebug>
                             <noHeaderFiles>true</noHeaderFiles>
+
+                            <options>
+                                <option>--add-opens</option>
+                                <option>java.base/java.lang.reflect=com.jfoenix</option>
+
+                                <option>--add-exports</option>
+                                <option>java.fxml/javafx.fxml=workassistant</option>
+                            </options>
                         </configuration>
                     </execution>
                 </executions>
