@@ -1,5 +1,13 @@
 package org.example.workassistant;
 
+import javafx.application.Application;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 import org.example.workassistant.fxui.app.JvmTool;
 import org.example.workassistant.fxui.app.MavenTool;
 import org.example.workassistant.fxui.components.RouterView;
@@ -17,32 +25,20 @@ import org.example.workassistant.fxui.tools.mybatis.MyBatisXmlToolPane;
 import org.example.workassistant.fxui.utils.FXUtils;
 import org.example.workassistant.fxui.view.DataTypeInfoTableView;
 import org.example.workassistant.fxui.view.FileTreeView;
-import javafx.application.Application;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 public class Main extends Application {
 
     Stage stage = new Stage();
+
     @Override
     public void start(Stage stage) throws IOException {
 
         BorderPane root = new BorderPane();
 
         LayoutPane layoutPane = new LayoutPane();
-
-        URL resource = Main.class.getResource("layout/connection_manage.fxml");
-
-        System.out.println(resource);
 
         NavigationMenu menu1 = new NavigationMenu("连接信息", View.load(ConnManageView.class));
         NavigationMenu menu = new NavigationMenu("开发工具", null);
@@ -63,12 +59,11 @@ public class Main extends Application {
         root.setCenter(layoutPane);
 
         Rectangle2D box = FXUtils.getScreenBox();
-
         layoutPane.expandAllMenu();
 
         Scene scene = new Scene(root, box.getWidth() * 0.75, box.getHeight() * 0.8);
 
-        stage.setTitle("Hello!");
+        stage.setTitle("开发工具");
         stage.setScene(scene);
         stage.show();
     }
