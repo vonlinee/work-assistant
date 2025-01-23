@@ -3,7 +3,7 @@ package org.example.workassistant.fxui.controller.fields;
 import org.example.workassistant.common.interfaces.FieldParser;
 import org.example.workassistant.common.interfaces.impl.FieldInfoMap;
 import org.example.workassistant.fxui.model.FieldNode;
-import org.example.workassistant.fxui.utils.FXUtils;
+import io.fxtras.FXUtils;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
 

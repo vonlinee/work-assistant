@@ -2,7 +2,7 @@ package org.example.workassistant.fxui.controller.fields;
 
 import org.example.workassistant.fxui.controls.MFXTextFieldTreeTableCell;
 import org.example.workassistant.fxui.model.FieldNode;
-import org.example.workassistant.fxui.utils.FXUtils;
+import io.fxtras.FXUtils;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;

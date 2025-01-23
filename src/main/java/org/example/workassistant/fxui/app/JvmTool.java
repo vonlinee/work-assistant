@@ -1,7 +1,7 @@
 package org.example.workassistant.fxui.app;
 
-import org.example.workassistant.fxui.utils.FXControl;
-import org.example.workassistant.fxui.utils.FXUtils;
+import io.fxtras.FXControl;
+import io.fxtras.FXUtils;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;

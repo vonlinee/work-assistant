@@ -1,8 +1,8 @@
 package org.example.workassistant.fxui.view;
 
-import io.fxtras.mvvm.FxmlBinder;
+import io.fxtras.scene.mvvm.FxmlBinder;
 import org.example.workassistant.fxui.utils.Helper;
-import io.fxtras.mvvm.FxmlView;
+import io.fxtras.scene.mvvm.FxmlView;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;

@@ -1,20 +1,18 @@
 package org.example.workassistant.fxui.tools.fx;
 
-import javafx.collections.FXCollections;
+import io.fxtras.JavaFXApplication;
+import io.fxtras.scene.control.enhanced.Action;
+import io.fxtras.scene.control.enhanced.OperationColumn;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.TextFieldListCell;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
 import org.example.workassistant.fxui.tools.maven.AnalyzePomDependencies;
+import org.example.workassistant.fxui.tools.maven.JarUtils;
 import org.example.workassistant.fxui.tools.maven.LocalJarDependency;
+import org.example.workassistant.fxui.tools.maven.ProjectDependencyTable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -31,12 +29,13 @@ public class Tool extends BorderPane {
     TextField localMavenRepositoryTextField = new TextField();
     TextField projectDir = new TextField();
 
+    ProjectDependencyTable dependencyTable;
+
     ListView<LocalJarDependency> list;
 
     public Tool() {
 
         setTop(initTop());
-
         setCenter(initCenter());
 
 
@@ -82,8 +81,7 @@ public class Tool extends BorderPane {
 
         parse.setOnAction(e -> {
             List<LocalJarDependency> dependencies = AnalyzePomDependencies.parseDependencies(new File(projectDir.getText()));
-
-            list.getItems().addAll(dependencies);
+            dependencyTable.setItems(dependencies);
         });
 
         buttonBar.getButtons().add(parse);
@@ -116,31 +114,38 @@ public class Tool extends BorderPane {
 
     private BorderPane initCenter() {
         BorderPane borderPane = new BorderPane();
+        dependencyTable = new ProjectDependencyTable();
 
-        list = new ListView<>();
-        list.setItems(FXCollections.observableArrayList());
-        list.setCellFactory(dependencyListView -> {
+        dependencyTable.addOperationAction(new Action<>() {
+            @Override
+            public String getLabel() {
+                return "模块化检测";
+            }
 
-            TextFieldListCell<LocalJarDependency> cell = new TextFieldListCell<>();
-
-            cell.setConverter(new StringConverter<>() {
-                @Override
-                public String toString(LocalJarDependency localJarDependency) {
-                    return localJarDependency.toString();
+            @Override
+            public void onAction(TableView<LocalJarDependency> table, TableColumn<LocalJarDependency, Object> column, LocalJarDependency row) {
+                String path = buildFilePath(localMavenRepositoryTextField.getText(), row.getGroupId(), row.getArtifactId(), row.getVersion());
+                File file = new File(path);
+                if (!file.exists()) {
+                    System.out.println(path + "不存在");
+                    return;
                 }
+                row.setModular(JarUtils.containsModuleInfo(file));
 
-                @Override
-                public LocalJarDependency fromString(String s) {
-                    return new LocalJarDependency(s);
-                }
-            });
-
-            return cell;
+                System.out.println(row.getModular());
+            }
         });
 
-        borderPane.setCenter(list);
+        borderPane.setCenter(dependencyTable);
 
         return borderPane;
+    }
+
+    private static String buildFilePath(String localRepo, String groupId, String artifactId, String version) {
+        // 将 groupId 转换为路径
+        String groupPath = groupId.replace('.', File.separatorChar);
+        return localRepo + File.separator + groupPath + File.separator + artifactId + File.separator + version
+                + File.separator + artifactId + "-" + version + ".jar";
     }
 
     public void init() {

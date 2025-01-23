@@ -2,7 +2,7 @@ package org.example.workassistant.fxui.controller.fields;
 
 import cn.hutool.core.io.FileUtil;
 import org.example.workassistant.fxui.model.FieldNode;
-import org.example.workassistant.fxui.utils.FXUtils;
+import io.fxtras.FXUtils;
 import org.example.workassistant.sdk.util.StringUtils;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;

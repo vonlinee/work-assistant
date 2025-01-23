@@ -2,7 +2,7 @@ package org.example.workassistant.fxui.controller;
 
 import org.example.workassistant.sdk.util.StringUtils;
 import org.example.workassistant.fxui.tools.text.TextHandleMap;
-import io.fxtras.mvvm.FxmlView;
+import io.fxtras.scene.mvvm.FxmlView;
 import org.example.workassistant.common.utils.XMLUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

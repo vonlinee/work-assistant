@@ -1,7 +1,7 @@
 package org.example.workassistant.fxui.layout;
 
 import org.example.workassistant.fxui.layout.menu.NavigationMenu;
-import org.example.workassistant.fxui.utils.FXUtils;
+import io.fxtras.FXUtils;
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;

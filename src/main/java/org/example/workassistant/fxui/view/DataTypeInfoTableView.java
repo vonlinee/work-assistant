@@ -10,7 +10,7 @@ import org.example.workassistant.fxui.components.table.TablePane;
 import org.example.workassistant.fxui.components.table.TablePaneOption;
 import org.example.workassistant.fxui.mapper.DataTypeItemMapper;
 import org.example.workassistant.fxui.mapper.MyBatis;
-import org.example.workassistant.fxui.utils.FXUtils;
+import io.fxtras.FXUtils;
 import org.example.workassistant.fxui.utils.Helper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;

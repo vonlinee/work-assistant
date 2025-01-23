@@ -1,8 +1,8 @@
 package org.example.workassistant.fxui.components.table;
 
 import com.dlsc.formsfx.model.structure.Form;
-import org.example.workassistant.fxui.utils.FXControl;
-import org.example.workassistant.fxui.utils.FXUtils;
+import io.fxtras.FXControl;
+import io.fxtras.FXUtils;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

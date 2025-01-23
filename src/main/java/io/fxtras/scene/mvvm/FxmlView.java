@@ -1,4 +1,4 @@
-package io.fxtras.mvvm;
+package io.fxtras.scene.mvvm;
 
 import javafx.fxml.Initializable;
 import javafx.scene.Node;

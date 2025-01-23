@@ -1,6 +1,6 @@
 package org.example.workassistant.fxui.view;
 
-import org.example.workassistant.fxui.utils.FXUtils;
+import io.fxtras.FXUtils;
 import javafx.scene.layout.Region;
 import org.girod.javafx.svgimage.SVGImage;
 import org.girod.javafx.svgimage.SVGLoader;

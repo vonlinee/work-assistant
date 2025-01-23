@@ -1,4 +1,4 @@
-package io.fxtras.mvvm;
+package io.fxtras.scene.mvvm;
 
 import java.lang.annotation.*;
 

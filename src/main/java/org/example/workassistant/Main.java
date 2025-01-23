@@ -18,12 +18,12 @@ import org.example.workassistant.fxui.controller.expression.ExpressionEngineView
 import org.example.workassistant.fxui.controller.fields.FieldsManageView;
 import org.example.workassistant.fxui.controller.mbg.MyBatisCodeGenerationView;
 import org.example.workassistant.fxui.controller.template.TemplateManageView;
-import io.fxtras.mvvm.View;
+import io.fxtras.scene.mvvm.View;
 import org.example.workassistant.fxui.layout.LayoutPane;
 import org.example.workassistant.fxui.layout.menu.NavigationMenu;
 import org.example.workassistant.fxui.tools.fx.Tool;
 import org.example.workassistant.fxui.tools.mybatis.MyBatisXmlToolPane;
-import org.example.workassistant.fxui.utils.FXUtils;
+import io.fxtras.FXUtils;
 import org.example.workassistant.fxui.view.DataTypeInfoTableView;
 import org.example.workassistant.fxui.view.FileTreeView;
 

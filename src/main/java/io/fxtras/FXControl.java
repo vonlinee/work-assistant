@@ -1,5 +1,6 @@
-package org.example.workassistant.fxui.utils;
+package io.fxtras;
 
+import io.fxtras.FXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;

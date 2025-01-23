@@ -1,6 +1,6 @@
 package org.example.workassistant.fxui.view;
 
-import org.example.workassistant.fxui.utils.FXUtils;
+import io.fxtras.FXUtils;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;

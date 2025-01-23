@@ -1,6 +1,6 @@
 package org.example.workassistant.fxui.components;
 
-import org.example.workassistant.fxui.utils.FXUtils;
+import io.fxtras.FXUtils;
 import javafx.scene.layout.Region;
 import org.fxmisc.richtext.CodeArea;
 

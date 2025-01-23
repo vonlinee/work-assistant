@@ -59,8 +59,6 @@ module workassistant {
     requires org.apache.commons.collections4;
     requires spring.beans;
 
-    opens io.fxtras;
-
     opens org.example.workassistant to javafx.fxml;
     opens org.example.workassistant.fxui.controller.domain to javafx.base;
     opens org.example.workassistant.fxui.controller.dbconn to javafx.fxml;
@@ -81,4 +79,5 @@ module workassistant {
     opens org.example.workassistant.fxui.tools.maven to javafx.fxml;
     exports org.example.workassistant.fxui.tools.fx;
     opens org.example.workassistant.fxui.tools.fx to javafx.fxml;
+    opens io.fxtras;
 }

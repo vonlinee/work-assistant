@@ -1,6 +1,6 @@
-package io.fxtras.control.skin;
+package io.fxtras.scene.control.skin;
 
-import io.fxtras.control.SplitPane;
+import io.fxtras.scene.control.SplitPane;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;

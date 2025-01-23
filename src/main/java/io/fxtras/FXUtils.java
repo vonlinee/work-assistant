@@ -1,4 +1,4 @@
-package org.example.workassistant.fxui.utils;
+package io.fxtras;
 
 import org.example.workassistant.fxui.components.table.TableColumnInitializer;
 import org.example.workassistant.fxui.components.table.TableViewColumn;

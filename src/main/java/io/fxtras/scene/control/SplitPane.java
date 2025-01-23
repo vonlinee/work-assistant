@@ -1,6 +1,6 @@
-package io.fxtras.control;
+package io.fxtras.scene.control;
 
-import io.fxtras.control.skin.SplitPaneSkin;
+import io.fxtras.scene.control.skin.SplitPaneSkin;
 import javafx.beans.DefaultProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
