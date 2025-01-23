@@ -5,7 +5,7 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import org.example.workassistant.fxui.model.DatabaseInfo;
 import org.example.workassistant.sdk.util.StringUtils;
-import org.example.workassistant.fxui.fxtras.Alerts;
+import io.fxtras.Alerts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

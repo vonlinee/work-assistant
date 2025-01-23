@@ -1,7 +1,7 @@
 package org.example.workassistant.fxui.tools.filestructure;
 
 import org.example.workassistant.fxui.controller.fields.FieldsManageView;
-import org.example.workassistant.fxui.fxtras.utils.StageManager;
+import io.fxtras.utils.StageManager;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;

@@ -130,11 +130,11 @@ public final class XMLUtils {
 
     public static void main(String[] args) throws DocumentException {
         String xml = """
-            <dependency>
+            <localJarDependency>
                 <groupId>org.dom4j</groupId>
                 <artifactId>dom4j</artifactId>
                 <version>2.1.3</version>
-            </dependency>""".indent(8);
+            </localJarDependency>""".indent(8);
 
         final Map<String, Object> map = XMLUtils.parseXml(xml);
 

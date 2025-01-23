@@ -1,7 +1,7 @@
 package org.example.workassistant.fxui.view;
 
-import org.example.workassistant.fxui.fxtras.mvvm.FxmlBinder;
-import org.example.workassistant.fxui.fxtras.mvvm.FxmlView;
+import io.fxtras.mvvm.FxmlBinder;
+import io.fxtras.mvvm.FxmlView;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 

@@ -8,7 +8,7 @@ import org.example.workassistant.fxui.controller.expression.ExpressionEngineView
 import org.example.workassistant.fxui.controller.fields.FieldsManageView;
 import org.example.workassistant.fxui.controller.mbg.MyBatisCodeGenerationView;
 import org.example.workassistant.fxui.controller.template.TemplateManageView;
-import org.example.workassistant.fxui.fxtras.mvvm.View;
+import io.fxtras.mvvm.View;
 import org.example.workassistant.fxui.layout.LayoutPane;
 import org.example.workassistant.fxui.layout.menu.NavigationMenu;
 import org.example.workassistant.fxui.tools.mybatis.MyBatisXmlToolPane;

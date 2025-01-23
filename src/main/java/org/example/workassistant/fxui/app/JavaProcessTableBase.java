@@ -1,6 +1,6 @@
 package org.example.workassistant.fxui.app;
 
-import org.example.workassistant.fxui.common.ExceptionDialog;
+import org.example.workassistant.fxui.controls.ExceptionDialog;
 import org.example.workassistant.fxui.components.table.OperationColumnTableCell;
 import org.example.workassistant.fxui.components.table.TableVIewBase;
 import org.example.workassistant.fxui.utils.FXControl;

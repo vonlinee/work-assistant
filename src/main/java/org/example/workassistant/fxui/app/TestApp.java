@@ -5,7 +5,7 @@ import com.dlsc.formsfx.model.structure.Form;
 import com.dlsc.formsfx.model.structure.Group;
 import com.dlsc.formsfx.view.controls.SimpleCheckBoxControl;
 import com.dlsc.formsfx.view.renderer.FormRenderer;
-import org.example.workassistant.fxui.fxtras.JavaFXApplication;
+import io.fxtras.JavaFXApplication;
 import javafx.beans.property.*;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

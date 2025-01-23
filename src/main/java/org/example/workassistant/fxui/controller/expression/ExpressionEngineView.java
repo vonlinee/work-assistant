@@ -1,7 +1,7 @@
 package org.example.workassistant.fxui.controller.expression;
 
-import org.example.workassistant.fxui.fxtras.mvvm.FxmlBinder;
-import org.example.workassistant.fxui.fxtras.mvvm.FxmlView;
+import io.fxtras.mvvm.FxmlBinder;
+import io.fxtras.mvvm.FxmlView;
 
 import java.net.URL;
 import java.util.ResourceBundle;

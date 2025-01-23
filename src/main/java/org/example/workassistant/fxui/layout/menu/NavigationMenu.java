@@ -1,5 +1,6 @@
 package org.example.workassistant.fxui.layout.menu;
 
+import lombok.Getter;
 import org.example.workassistant.fxui.components.RouterView;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
@@ -7,6 +8,7 @@ import javafx.scene.control.TreeItem;
 /**
  * @see javafx.scene.control.MenuItem
  */
+@Getter
 public final class NavigationMenu extends TreeItem<String> {
 
     private Node content;
@@ -14,10 +16,6 @@ public final class NavigationMenu extends TreeItem<String> {
     public NavigationMenu(String title, Node content) {
         super(title);
         this.content = content;
-    }
-
-    public Node getContent() {
-        return content;
     }
 
     public Node setContent(Node newContent) {

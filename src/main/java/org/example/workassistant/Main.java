@@ -18,9 +18,10 @@ import org.example.workassistant.fxui.controller.expression.ExpressionEngineView
 import org.example.workassistant.fxui.controller.fields.FieldsManageView;
 import org.example.workassistant.fxui.controller.mbg.MyBatisCodeGenerationView;
 import org.example.workassistant.fxui.controller.template.TemplateManageView;
-import org.example.workassistant.fxui.fxtras.mvvm.View;
+import io.fxtras.mvvm.View;
 import org.example.workassistant.fxui.layout.LayoutPane;
 import org.example.workassistant.fxui.layout.menu.NavigationMenu;
+import org.example.workassistant.fxui.tools.fx.Tool;
 import org.example.workassistant.fxui.tools.mybatis.MyBatisXmlToolPane;
 import org.example.workassistant.fxui.utils.FXUtils;
 import org.example.workassistant.fxui.view.DataTypeInfoTableView;
@@ -52,6 +53,7 @@ public class Main extends Application {
         menu.addChild("表达式引擎", RouterView.of(View.load(ExpressionEngineView.class)));
         menu.addChild("Maven", RouterView.of(new MavenTool()));
         menu.addChild("JVM工具", RouterView.of(new JvmTool()));
+        menu.addChild("JavaFX", RouterView.of(new Tool()));
 
         layoutPane.addNavigationMenu(menu1, menu);
 

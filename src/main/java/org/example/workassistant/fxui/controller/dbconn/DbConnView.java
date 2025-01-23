@@ -1,11 +1,11 @@
 package org.example.workassistant.fxui.controller.dbconn;
 
-import org.example.workassistant.fxui.common.Constants;
+import org.example.workassistant.common.Constants;
 import org.example.workassistant.fxui.controller.BuiltinDriverType;
 import org.example.workassistant.fxui.event.FillDefaultValueEvent;
 import org.example.workassistant.fxui.model.ConnectionConfig;
-import org.example.workassistant.fxui.fxtras.mvvm.FxmlBinder;
-import org.example.workassistant.fxui.fxtras.mvvm.FxmlView;
+import io.fxtras.mvvm.FxmlBinder;
+import io.fxtras.mvvm.FxmlView;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;

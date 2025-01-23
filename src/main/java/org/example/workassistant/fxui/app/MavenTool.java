@@ -57,12 +57,12 @@ public class MavenTool extends BorderPane {
         setCenter(textArea);
 
         textArea.setText("""
-                        <dependency>
+                        <localJarDependency>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>1.18.28</version>
                             <scope>compile</scope>
-                        </dependency>
+                        </localJarDependency>
             """);
 
         HBox bottom = new HBox();
@@ -120,13 +120,13 @@ public class MavenTool extends BorderPane {
             Element documentElement = doc.getDocumentElement();
             String nodeName = documentElement.getNodeName();
             if ("dependencies".equals(nodeName)) {
-                NodeList dependencyNodes = documentElement.getElementsByTagName("dependency");
+                NodeList dependencyNodes = documentElement.getElementsByTagName("localJarDependency");
                 for (int i = 0; i < dependencyNodes.getLength(); i++) {
                     Node item = dependencyNodes.item(i);
                     MavenCoordinate mavenCoordinate = parse(item);
                     coordinates.add(mavenCoordinate);
                 }
-            } else if ("dependency".equals(nodeName)) {
+            } else if ("localJarDependency".equals(nodeName)) {
                 coordinates.add(parse(documentElement));
             }
         } catch (Exception exception) {
@@ -147,7 +147,7 @@ public class MavenTool extends BorderPane {
             if (item.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-            if ("dependency".equals(node.getNodeName())) {
+            if ("localJarDependency".equals(node.getNodeName())) {
                 NodeList childNodes1 = node.getChildNodes();
                 for (int i1 = 0; i1 < childNodes1.getLength(); i1++) {
                     Node item1 = childNodes1.item(i1);

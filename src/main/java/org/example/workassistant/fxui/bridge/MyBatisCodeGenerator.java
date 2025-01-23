@@ -1,6 +1,6 @@
 package org.example.workassistant.fxui.bridge;
 
-import org.example.workassistant.fxui.common.Constants;
+import org.example.workassistant.common.Constants;
 import org.example.workassistant.fxui.common.StringKey;
 import org.example.workassistant.fxui.controller.BuiltinDriverType;
 import org.example.workassistant.fxui.model.*;

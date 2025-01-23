@@ -1,6 +1,6 @@
 package org.example.workassistant.fxui.controller.dbconn;
 
-import org.example.workassistant.fxui.common.ExceptionDialog;
+import org.example.workassistant.fxui.controls.ExceptionDialog;
 import org.example.workassistant.fxui.model.ConnectionConfig;
 import org.example.workassistant.fxui.utils.AppConfig;
 import org.example.workassistant.fxui.utils.DBUtils;

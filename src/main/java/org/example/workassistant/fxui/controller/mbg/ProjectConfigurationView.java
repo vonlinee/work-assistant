@@ -1,12 +1,12 @@
 package org.example.workassistant.fxui.controller.mbg;
 
 import org.example.workassistant.fxui.bridge.ProjectConfiguration;
-import org.example.workassistant.fxui.fxtras.utils.HBoxBuilder;
-import org.example.workassistant.fxui.fxtras.utils.VBoxBuilder;
-import org.example.workassistant.fxui.fxtras.utils.EventUtils;
+import io.fxtras.utils.HBoxBuilder;
+import io.fxtras.utils.VBoxBuilder;
+import io.fxtras.utils.EventUtils;
 import org.example.workassistant.fxui.utils.AppConfig;
-import org.example.workassistant.fxui.fxtras.mvvm.FxmlBinder;
-import org.example.workassistant.fxui.fxtras.mvvm.FxmlView;
+import io.fxtras.mvvm.FxmlBinder;
+import io.fxtras.mvvm.FxmlView;
 import org.example.workassistant.fxui.utils.JSONUtils;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;

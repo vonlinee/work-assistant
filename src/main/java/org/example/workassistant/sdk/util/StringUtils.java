@@ -8,7 +8,25 @@ import org.example.workassistant.sdk.lang.Interpolations;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.Enumeration;
+import java.util.IllegalFormatException;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -1621,7 +1639,7 @@ public abstract class StringUtils {
      * @param array1 the first array (can be {@code null})
      * @param array2 the second array (can be {@code null})
      * @return the new array ({@code null} if both given arrays were {@code null})
-     * @deprecated in favor of manual merging via {@link LinkedHashSet}
+     * in favor of manual merging via {@link LinkedHashSet}
      * (with every entry included at most once, even entries within the first array)
      */
     public static String[] mergeStringArrays(String[] array1, String[] array2) {

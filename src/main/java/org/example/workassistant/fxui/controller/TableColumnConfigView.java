@@ -1,12 +1,12 @@
 package org.example.workassistant.fxui.controller;
 
-import org.example.workassistant.fxui.common.Constants;
+import org.example.workassistant.common.Constants;
 import org.example.workassistant.fxui.model.props.ColumnCustomConfiguration;
 import org.example.workassistant.sdk.util.CollectionUtils;
 import org.example.workassistant.sdk.util.StringUtils;
-import org.example.workassistant.fxui.fxtras.Alerts;
-import org.example.workassistant.fxui.fxtras.mvvm.FxmlBinder;
-import org.example.workassistant.fxui.fxtras.mvvm.FxmlView;
+import io.fxtras.Alerts;
+import io.fxtras.mvvm.FxmlBinder;
+import io.fxtras.mvvm.FxmlView;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

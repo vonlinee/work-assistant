@@ -2,6 +2,9 @@ package org.example.workassistant.common.model;
 
 import lombok.Data;
 
+/**
+ * Maven 坐标
+ */
 @Data
 public class MavenCoordinate {
 

@@ -3,7 +3,7 @@ package org.example.workassistant.fxui.controller.template;
 import cn.hutool.core.io.FileUtil;
 import org.example.workassistant.fxui.editor.CodeMirrorEditor;
 import org.example.workassistant.fxui.editor.LanguageMode;
-import org.example.workassistant.fxui.fxtras.utils.EventUtils;
+import io.fxtras.utils.EventUtils;
 import org.example.workassistant.fxui.model.TemplateInfo;
 import org.example.workassistant.sdk.util.StringUtils;
 import javafx.application.Platform;

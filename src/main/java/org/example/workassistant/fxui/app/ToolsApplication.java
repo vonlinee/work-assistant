@@ -2,7 +2,7 @@ package org.example.workassistant.fxui.app;
 
 import org.example.workassistant.fxui.components.Modal;
 import org.example.workassistant.fxui.view.FileHelperView;
-import org.example.workassistant.fxui.fxtras.mvvm.View;
+import io.fxtras.mvvm.View;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

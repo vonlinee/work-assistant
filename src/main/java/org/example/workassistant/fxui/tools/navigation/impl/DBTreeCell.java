@@ -1,7 +1,7 @@
 package org.example.workassistant.fxui.tools.navigation.impl;
 
 import org.example.workassistant.common.interfaces.impl.TableMetadata;
-import org.example.workassistant.fxui.fxtras.utils.EventUtils;
+import io.fxtras.utils.EventUtils;
 import org.example.workassistant.fxui.model.ConnectionConfig;
 import org.example.workassistant.fxui.model.ConnectionRegistry;
 import org.example.workassistant.fxui.utils.DBUtils;

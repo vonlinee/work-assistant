@@ -1,10 +1,10 @@
 package org.example.workassistant.fxui.controller.dbconn;
 
 import org.example.workassistant.fxui.event.DeleteConnEvent;
-import org.example.workassistant.fxui.fxtras.Alerts;
-import org.example.workassistant.fxui.fxtras.mvvm.FxmlBinder;
-import org.example.workassistant.fxui.fxtras.mvvm.FxmlView;
-import org.example.workassistant.fxui.fxtras.utils.StageManager;
+import io.fxtras.Alerts;
+import io.fxtras.mvvm.FxmlBinder;
+import io.fxtras.mvvm.FxmlView;
+import io.fxtras.utils.StageManager;
 import org.example.workassistant.fxui.model.ConnectionConfig;
 import org.example.workassistant.fxui.model.ConnectionRegistry;
 import org.example.workassistant.fxui.utils.AppConfig;
