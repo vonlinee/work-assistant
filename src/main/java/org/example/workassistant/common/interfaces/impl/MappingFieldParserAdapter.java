@@ -2,8 +2,8 @@ package org.example.workassistant.common.interfaces.impl;
 
 import org.example.workassistant.common.exception.FieldParseException;
 import org.example.workassistant.common.interfaces.FieldParser;
-import org.example.workassistant.sdk.util.CollectionUtils;
-import org.example.workassistant.sdk.util.NumberUtils;
+import org.example.workassistant.utils.util.CollectionUtils;
+import org.example.workassistant.utils.util.NumberUtils;
 
 import java.util.*;
 

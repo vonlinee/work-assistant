@@ -1,8 +1,8 @@
 package io.fxtras;
 
-import org.example.workassistant.fxui.components.table.TableColumnInitializer;
-import org.example.workassistant.fxui.components.table.TableViewColumn;
-import org.example.workassistant.fxui.components.table.TableViewModel;
+import org.example.workassistant.ui.components.table.TableColumnInitializer;
+import org.example.workassistant.ui.components.table.TableViewColumn;
+import org.example.workassistant.ui.components.table.TableViewModel;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;

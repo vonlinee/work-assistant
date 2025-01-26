@@ -3,7 +3,6 @@ package io.fxtras.scene.control.enhanced;
 import io.fxtras.scene.control.table.CustomTableCell;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.util.Callback;
 
 import java.util.ArrayList;
 import java.util.List;

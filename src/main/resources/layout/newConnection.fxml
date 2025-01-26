@@ -5,7 +5,7 @@
 <BorderPane
     stylesheets="@/static/css/global_style.css"
     xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="org.example.workassistant.fxui.controller.dbconn.NewConnView">
+    fx:controller="org.example.workassistant.ui.controller.dbconn.NewConnView">
 
   <center>
     <TabPane tabClosingPolicy="UNAVAILABLE">

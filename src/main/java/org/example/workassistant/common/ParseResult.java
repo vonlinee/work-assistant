@@ -1,6 +1,6 @@
 package org.example.workassistant.common;
 
-import org.example.workassistant.fxui.tools.mybatis.TreeNode;
+import org.example.workassistant.ui.tools.mybatis.TreeNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

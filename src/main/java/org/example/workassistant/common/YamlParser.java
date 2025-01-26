@@ -1,6 +1,6 @@
 package org.example.workassistant.common;
 
-import org.example.workassistant.sdk.util.StringUtils;
+import org.example.workassistant.utils.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;

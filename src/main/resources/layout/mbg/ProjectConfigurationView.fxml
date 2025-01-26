@@ -7,7 +7,7 @@
             fx:id="root"
             prefWidth="600.0"
             prefHeight="400.0"
-            fx:controller="org.example.workassistant.fxui.controller.mbg.ProjectConfigurationView">
+            fx:controller="org.example.workassistant.ui.controller.mbg.ProjectConfigurationView">
 
   <top>
     <ToolBar>

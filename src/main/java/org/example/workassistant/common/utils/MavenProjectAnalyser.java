@@ -1,7 +1,7 @@
 package org.example.workassistant.common.utils;
 
-import org.example.workassistant.sdk.lang.RuntimeIOException;
-import org.example.workassistant.sdk.util.StringUtils;
+import org.example.workassistant.utils.lang.RuntimeIOException;
+import org.example.workassistant.utils.util.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

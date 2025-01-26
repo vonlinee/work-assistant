@@ -7,5 +7,5 @@ public interface Action<S> {
 
     String getLabel();
 
-    void onAction(TableView<S> table, TableColumn<S, Object> column, S row);
+    void onAction(TableView<S> table, OperationColumn<S> column, S row);
 }

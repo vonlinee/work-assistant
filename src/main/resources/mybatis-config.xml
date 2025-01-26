@@ -40,7 +40,7 @@
         </environment>
     </environments>
     <mappers>
-        <mapper class="org.example.workassistant.fxui.mapper.DataTypeItemMapper"/>
-        <mapper class="org.example.workassistant.fxui.mapper.FieldSpecMapper"/>
+        <mapper class="org.example.workassistant.ui.mapper.DataTypeItemMapper"/>
+        <mapper class="org.example.workassistant.ui.mapper.FieldSpecMapper"/>
     </mappers>
 </configuration>

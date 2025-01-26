@@ -1,6 +1,6 @@
 package org.example.workassistant.common.utils;
 
-import org.example.workassistant.sdk.util.StringUtils;
+import org.example.workassistant.utils.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +10,7 @@ import java.text.MessageFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Utils {
+public final class Utils {
 
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
     static Pattern pattern = Pattern.compile("\\s*|\\t|\\r|\\n");

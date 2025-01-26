@@ -1,7 +1,7 @@
 package io.fxtras.scene.mvvm;
 
 import io.fxtras.fxml.FXMLClassLoader;
-import org.example.workassistant.fxui.utils.ResourceLoader;
+import org.example.workassistant.utils.ResourceLoader;
 import io.fxtras.utils.WeakValueHashMap;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;

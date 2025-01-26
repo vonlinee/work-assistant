@@ -1,5 +1,7 @@
 package org.example.workassistant;
 
+import io.fxtras.FXUtils;
+import io.fxtras.scene.mvvm.View;
 import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -8,24 +10,23 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.example.workassistant.fxui.app.JvmTool;
-import org.example.workassistant.fxui.app.MavenTool;
-import org.example.workassistant.fxui.components.RouterView;
-import org.example.workassistant.fxui.controller.dbconn.ConnManageView;
-import org.example.workassistant.fxui.controller.domain.ClassDefView;
-import org.example.workassistant.fxui.controller.domain.TypeMappingTable;
-import org.example.workassistant.fxui.controller.expression.ExpressionEngineView;
-import org.example.workassistant.fxui.controller.fields.FieldsManageView;
-import org.example.workassistant.fxui.controller.mbg.MyBatisCodeGenerationView;
-import org.example.workassistant.fxui.controller.template.TemplateManageView;
-import io.fxtras.scene.mvvm.View;
-import org.example.workassistant.fxui.layout.LayoutPane;
-import org.example.workassistant.fxui.layout.menu.NavigationMenu;
-import org.example.workassistant.fxui.tools.fx.Tool;
-import org.example.workassistant.fxui.tools.mybatis.MyBatisXmlToolPane;
-import io.fxtras.FXUtils;
-import org.example.workassistant.fxui.view.DataTypeInfoTableView;
-import org.example.workassistant.fxui.view.FileTreeView;
+import org.example.workassistant.ui.app.JvmTool;
+import org.example.workassistant.ui.app.MavenTool;
+import org.example.workassistant.ui.components.RouterView;
+import org.example.workassistant.ui.controller.dbconn.ConnManageView;
+import org.example.workassistant.ui.controller.domain.ClassDefView;
+import org.example.workassistant.ui.controller.domain.TypeMappingTable;
+import org.example.workassistant.ui.controller.expression.ExpressionEngineView;
+import org.example.workassistant.ui.controller.fields.FieldsManageView;
+import org.example.workassistant.ui.controller.mbg.MyBatisCodeGenerationView;
+import org.example.workassistant.ui.controller.template.TemplateManageView;
+import org.example.workassistant.ui.controls.PopupTextField;
+import org.example.workassistant.ui.layout.LayoutPane;
+import org.example.workassistant.ui.layout.menu.NavigationMenu;
+import org.example.workassistant.ui.tools.fx.Tool;
+import org.example.workassistant.ui.tools.mybatis.MyBatisXmlToolPane;
+import org.example.workassistant.ui.view.DataTypeInfoTableView;
+import org.example.workassistant.ui.view.FileTreeView;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,6 +65,8 @@ public class Main extends Application {
         layoutPane.expandAllMenu();
 
         Scene scene = new Scene(root, box.getWidth() * 0.75, box.getHeight() * 0.8);
+
+        root.setBottom(new PopupTextField());
 
         stage.setTitle("开发工具");
         stage.setScene(scene);

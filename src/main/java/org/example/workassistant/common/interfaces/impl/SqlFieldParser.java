@@ -2,7 +2,7 @@ package org.example.workassistant.common.interfaces.impl;
 
 import org.example.workassistant.common.exception.FieldParseException;
 import org.example.workassistant.common.interfaces.FieldParser;
-import org.example.workassistant.sdk.util.StringUtils;
+import org.example.workassistant.utils.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

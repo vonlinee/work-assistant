@@ -1,6 +1,6 @@
 package io.fxtras.fxml;
 
-import org.example.workassistant.fxui.utils.ResourceLoader;
+import org.example.workassistant.utils.ResourceLoader;
 
 import java.io.IOException;
 import java.net.URL;
