@@ -89,4 +89,5 @@ module workassistant {
     opens org.workassistant.ui.tools.fx to javafx.fxml;
 
     exports org.workassistant.tools.text to cn.hutool;
+    exports org.workassistant.tools.excel to cn.hutool;
 }

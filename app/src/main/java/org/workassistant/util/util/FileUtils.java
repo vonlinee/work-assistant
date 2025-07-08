@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
 
 /**
  * 文件处理工具类
- *
-
  */
 public class FileUtils extends FileUtil {
 
@@ -852,10 +850,10 @@ public class FileUtils extends FileUtil {
             return new ArrayList<>(0);
         }
         return StringUtils.splitToList(str, separator)
-            .stream()
-            .filter(Objects::nonNull)
-            .map(mapper)
-            .collect(Collectors.toList());
+                .stream()
+                .filter(Objects::nonNull)
+                .map(mapper)
+                .collect(Collectors.toList());
     }
 
 
@@ -1051,7 +1049,7 @@ public class FileUtils extends FileUtil {
             return null == str && null == prefix;
         }
         boolean isStartWith = str.toString()
-            .regionMatches(ignoreCase, 0, prefix.toString(), 0, prefix.length());
+                .regionMatches(ignoreCase, 0, prefix.toString(), 0, prefix.length());
 
         if (isStartWith) {
             return !ignoreEquals || !equals(str, prefix, ignoreCase);
