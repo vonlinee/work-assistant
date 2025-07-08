@@ -3,6 +3,10 @@ module workassistant {
     requires javafx.fxml;
     requires javafx.web;
 
+//    requires atlantafx.base;
+
+    requires reflections;
+
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires net.synedra.validatorfx;
@@ -14,7 +18,6 @@ module workassistant {
     requires lombok;
     requires org.mybatis.generator;
     requires org.slf4j;
-    requires annotations;
     requires druid;
     requires cn.hutool;
     requires org.apache.commons.lang3;
@@ -59,25 +62,31 @@ module workassistant {
     requires org.apache.commons.collections4;
     requires spring.beans;
     requires fxsdk;
+    requires easyexcel.core;
+    requires org.jetbrains.annotations;
 
-    opens org.example.workassistant to javafx.fxml;
-    opens org.example.workassistant.ui.controller.domain to javafx.base;
-    opens org.example.workassistant.ui.controller.dbconn to javafx.fxml;
-    opens org.example.workassistant.ui.controller.expression to javafx.fxml;
-    opens org.example.workassistant.ui.controller.mbg to javafx.fxml;
-    opens org.example.workassistant.ui.controller.fields to javafx.fxml;
-    opens org.example.workassistant.ui.controller.template to javafx.fxml;
+    requires com.formdev.flatlaf;
 
-    exports org.example.workassistant;
-    exports org.example.workassistant.ui.controller;
-    exports org.example.workassistant.ui.controller.dbconn to javafx.fxml;
-    exports org.example.workassistant.ui.controller.domain to javafx.fxml;
-    exports org.example.workassistant.ui.controller.expression to javafx.fxml;
-    exports org.example.workassistant.ui.controller.mbg to javafx.fxml;
-    exports org.example.workassistant.ui.controller.fields to javafx.fxml;
-    exports org.example.workassistant.ui.controller.template to javafx.fxml;
-    exports org.example.workassistant.ui.tools.maven;
-    opens org.example.workassistant.ui.tools.maven to javafx.fxml;
-    exports org.example.workassistant.ui.tools.fx;
-    opens org.example.workassistant.ui.tools.fx to javafx.fxml;
+    opens org.workassistant to javafx.fxml;
+    opens org.workassistant.ui.controller.domain to javafx.base;
+    opens org.workassistant.ui.controller.dbconn to javafx.fxml;
+    opens org.workassistant.ui.controller.expression to javafx.fxml;
+    opens org.workassistant.ui.controller.mbg to javafx.fxml;
+    opens org.workassistant.ui.controller.fields to javafx.fxml;
+    opens org.workassistant.ui.controller.template to javafx.fxml;
+
+    exports org.workassistant;
+    exports org.workassistant.ui.controller;
+    exports org.workassistant.ui.controller.dbconn to javafx.fxml, fxsdk;
+    exports org.workassistant.ui.controller.domain to javafx.fxml, fxsdk;
+    exports org.workassistant.ui.controller.expression to javafx.fxml, fxsdk;
+    exports org.workassistant.ui.controller.mbg to javafx.fxml, fxsdk;
+    exports org.workassistant.ui.controller.fields to javafx.fxml, fxsdk;
+    exports org.workassistant.ui.controller.template to javafx.fxml, fxsdk;
+    exports org.workassistant.ui.tools.maven;
+    opens org.workassistant.ui.tools.maven to javafx.fxml;
+    exports org.workassistant.ui.tools.fx;
+    opens org.workassistant.ui.tools.fx to javafx.fxml;
+
+    exports org.workassistant.tools.text to cn.hutool;
 }

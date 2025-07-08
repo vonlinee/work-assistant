@@ -6,7 +6,7 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       spacing="5"
-      fx:controller="org.example.workassistant.ui.controller.mbg.MyBatisCodeGenerationView">
+      fx:controller="org.workassistant.ui.controller.mbg.MyBatisCodeGenerationView">
 
   <VBox>
     <ToolBar>

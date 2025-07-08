@@ -8,7 +8,9 @@ import java.net.URL;
 /**
  * 用于资源加载
  */
-public class ResourceLoader {
+public interface ResourceLoader {
+
+    URL getResourceAsUrl(String resource);
 
     /**
      * 加载类路径下的资源作为URL
@@ -16,7 +18,7 @@ public class ResourceLoader {
      * @param name 不要以/开头
      * @return 文件URL
      */
-    public static URL load(String name) {
+    static URL load(String name) {
         ClassPathResource resource = new ClassPathResource(name);
         try {
             URL url = null;
@@ -32,26 +34,6 @@ public class ResourceLoader {
         }
     }
 
-    public static void main(String[] args) {
-
-        String classpath = System.getProperty("java.class.path");
-
-        String[] split = classpath.split(";");
-
-        for (String s : split) {
-            System.out.println(s
-            );
-        }
-
-        ClassLoader classLoader = ResourceLoader.class.getClassLoader();
-        URL resource = classLoader.getResource("layout/connection_manage.fxml");
-
-
-        System.out.println(resource);
-
-
-    }
-
     /**
      * 加载资源为URL
      *
@@ -59,7 +41,7 @@ public class ResourceLoader {
      * @param name  相对路径名称
      * @return URL
      */
-    public static URL load(Class<?> clazz, String name) {
+    static URL load(Class<?> clazz, String name) {
         if (clazz == null) {
             return load(name);
         }

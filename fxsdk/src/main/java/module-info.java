@@ -6,6 +6,7 @@ module fxsdk {
     exports io.fxtras.utils;
     exports io.fxtras.scene.control.enhanced;
     exports io.fxtras.scene.control.table;
+    exports io.fxtras.fxml;
     requires java.datatransfer;
     requires java.logging;
     requires javafx.base;
@@ -19,4 +20,6 @@ module fxsdk {
     requires com.dlsc.formsfx;
     requires org.slf4j;
     requires org.fxmisc.richtext;
+    requires org.jetbrains.annotations;
+
 }

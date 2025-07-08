@@ -1,8 +1,8 @@
 package io.fxtras.scene.table;
 
 import com.dlsc.formsfx.model.structure.Form;
-import io.fxtras.FXControl;
-import io.fxtras.FXUtils;
+import io.fxtras.utils.FXControl;
+import io.fxtras.utils.FXUtils;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

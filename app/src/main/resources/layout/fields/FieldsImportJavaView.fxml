@@ -6,7 +6,7 @@
 <BorderPane
     fx:id="bopRoot"
     xmlns="http://javafx.com/javafx"
-    fx:controller="org.example.workassistant.ui.controller.fields.JavaImportView"
+    fx:controller="org.workassistant.ui.controller.fields.JavaImportView"
     xmlns:fx="http://javafx.com/fxml">
 
   <top>

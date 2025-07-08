@@ -5,7 +5,7 @@ import javafx.scene.control.TableView;
 
 import java.util.Collection;
 
-public abstract class TableVIewBase<R> extends TableView<R> {
+public abstract class TableViewBase<R> extends TableView<R> {
 
     @SafeVarargs
     public final void addColumns(TableColumn<R, ?>... columns) {

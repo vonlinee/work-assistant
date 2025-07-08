@@ -1,6 +1,6 @@
 package io.fxtras.scene;
 
-import io.fxtras.FXUtils;
+import io.fxtras.utils.FXUtils;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Region;

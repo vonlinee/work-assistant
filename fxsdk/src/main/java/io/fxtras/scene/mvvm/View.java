@@ -1,9 +1,9 @@
 package io.fxtras.scene.mvvm;
 
-import io.fxtras.ResourceLoader;
 import io.fxtras.fxml.FXMLClassLoader;
+import io.fxtras.fxml.FXMLLocator;
+import io.fxtras.fxml.ViewFXMLLoader;
 import io.fxtras.utils.WeakValueHashMap;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import org.slf4j.Logger;
@@ -11,12 +11,17 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 
 /**
  * 所有控制器的基类，控制器是单例对象
  */
 public abstract class View implements SceneGraphAccessor {
+
+    static FXMLLocator locator = null;
+
+    public static void setFxmlLocator(FXMLLocator locator) {
+        View.locator = locator;
+    }
 
     /**
      * all view controller instances
@@ -96,20 +101,16 @@ public abstract class View implements SceneGraphAccessor {
             FxmlBinder fxmlInfo = clazz.getAnnotation(FxmlBinder.class);
             if (fxmlInfo != null) {
                 String fxmlLocation = fxmlInfo.location();
-                if (fxmlLocation.isEmpty()) {
-                    String packageName = clazz.getPackageName();
-                    fxmlLocation = packageName.replace(".", "/") + "/" + clazz.getSimpleName() + ".fxml";
-                }
-                URL resource = ResourceLoader.load(fxmlLocation);
-                FXMLLoader fxmlLoader = new FXMLLoader(resource);
+                ViewFXMLLoader fxmlLoader = new ViewFXMLLoader(fxmlLocation, clazz);
                 fxmlLoader.setClassLoader(new FXMLClassLoader(null));
+                fxmlLoader.setFXMLLocator(locator);
                 fxmlLoader.setControllerFactory(param -> {
                     Object view1 = viewCache.get(param);
                     if (view1 == null) {
                         try {
                             view1 = param.getConstructor().newInstance();
                         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                                 NoSuchMethodException e) {
+                                NoSuchMethodException e) {
                             throw new RuntimeException(e);
                         }
                     }

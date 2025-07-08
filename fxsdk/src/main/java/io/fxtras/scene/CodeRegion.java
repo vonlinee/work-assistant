@@ -1,6 +1,6 @@
 package io.fxtras.scene;
 
-import io.fxtras.FXUtils;
+import io.fxtras.utils.FXUtils;
 import javafx.scene.layout.Region;
 import org.fxmisc.richtext.CodeArea;
 
