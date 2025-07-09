@@ -25,7 +25,6 @@ import org.workassistant.ui.controller.expression.ExpressionEngineView;
 import org.workassistant.ui.controller.fields.FieldsManageView;
 import org.workassistant.ui.controller.mbg.MyBatisCodeGenerationView;
 import org.workassistant.ui.controller.template.TemplateManageView;
-import org.workassistant.ui.controls.PopupTextField;
 import org.workassistant.ui.layout.LayoutPane;
 import org.workassistant.ui.layout.NavigationMenu;
 import org.workassistant.ui.tools.fx.Tool;
@@ -108,12 +107,10 @@ public class App extends JavaFXApplication {
         root.setTop(topBar());
         root.setCenter(layoutPane);
 
-        Rectangle2D box = FXUtils.getScreenBox();
         layoutPane.expandAllMenu();
 
+        Rectangle2D box = FXUtils.getScreenBox();
         Scene scene = new Scene(root, box.getWidth() * 0.75, box.getHeight() * 0.8);
-
-        root.setBottom(new PopupTextField());
 
         stage.setTitle("Assistant");
         stage.setScene(scene);
