@@ -26,16 +26,20 @@ public abstract class JavaFXApplication extends Application {
         }
         Theme theme = getTheme();
         if (theme != null) {
-
-            if (resourceLoader != null) {
-                URL url = resourceLoader.getResourceAsUrl(theme.getUserAgentStylesheet());
-                /**
-                 * 设置ContextClassLoader不生效，先转换为绝对路径
-                 * @see com.sun.javafx.css.StyleManager loadStylesheetUnPrivileged
-                 */
-                Application.setUserAgentStylesheet(url.toExternalForm());
-            } else {
-                Application.setUserAgentStylesheet(theme.getUserAgentStylesheet());
+            String userAgentStylesheet = theme.getUserAgentStylesheet();
+            if (userAgentStylesheet != null) {
+                if (resourceLoader != null) {
+                    URL url = resourceLoader.getResourceAsUrl(userAgentStylesheet);
+                    if (url != null) {
+                        /**
+                         * 设置ContextClassLoader不生效，先转换为绝对路径
+                         * @see com.sun.javafx.css.StyleManager loadStylesheetUnPrivileged
+                         */
+                        Application.setUserAgentStylesheet(url.toExternalForm());
+                    }
+                } else {
+                    Application.setUserAgentStylesheet(userAgentStylesheet);
+                }
             }
         }
         try {

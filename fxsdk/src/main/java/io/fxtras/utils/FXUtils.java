@@ -13,25 +13,10 @@ import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableRow;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -319,5 +304,68 @@ public final class FXUtils {
 
     public static boolean isEmpty(Map<?, ?> map) {
         return map == null || map.isEmpty();
+    }
+
+    public static void setDeviceBasedPrefSize(Dialog<?> dialog, float ratio) {
+        Rectangle2D screenBox = getScreenBox();
+        dialog.setWidth(screenBox.getWidth() * ratio);
+        dialog.setHeight(screenBox.getHeight() * ratio);
+    }
+
+    public static void setDeviceBasedPrefSize(Pane pane, float ratio) {
+        Rectangle2D screenBox = getScreenBox();
+        pane.setPrefSize(screenBox.getWidth() * ratio, screenBox.getHeight() * ratio);
+    }
+
+    public static void centerChildWindowOnStage(Stage stage, Stage primaryStage) {
+        if (primaryStage == null) {
+            return;
+        }
+        double x = stage.getX();
+        double y = stage.getY();
+
+        // Firstly we need to force CSS and layout to happen, as the dialogPane
+        // may not have been shown yet (so it has no dimensions)
+        stage.getScene().getRoot().applyCss();
+        stage.getScene().getRoot().layout();
+
+        final Scene ownerScene = primaryStage.getScene();
+        final double titleBarHeight = ownerScene.getY();
+
+        // because Stage does not seem to centre itself over its owner, we
+        // do it here.
+
+        // then we can get the dimensions and position the dialog appropriately.
+        final double dialogWidth = stage.getScene().getRoot().prefWidth(-1);
+        final double dialogHeight = stage.getScene().getRoot().prefHeight(dialogWidth);
+
+        final double ownerWidth = primaryStage.getScene().getRoot().prefWidth(-1);
+        final double ownerHeight = primaryStage.getScene().getRoot().prefHeight(ownerWidth);
+
+        if (dialogWidth < ownerWidth) {
+            x = primaryStage.getX() + (ownerScene.getWidth() / 2.0) - (dialogWidth / 2.0);
+        } else {
+            x = primaryStage.getX();
+            stage.setWidth(dialogWidth);
+        }
+
+        if (dialogHeight < ownerHeight) {
+            y = primaryStage.getY() + titleBarHeight / 2.0 + (ownerScene.getHeight() / 2.0) - (dialogHeight / 2.0);
+        } else {
+            y = primaryStage.getY();
+        }
+        stage.setX(x);
+        stage.setY(y);
+    }
+
+    public static void centerStage(Stage stage, double width, double height) {
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        stage.setX((screenBounds.getWidth() - width) / 2);
+        stage.setY((screenBounds.getHeight() - height) / 2);
+    }
+
+    public static void center(Region region) {
+        region.setMinHeight(Region.USE_PREF_SIZE);
+        region.setMinWidth(Region.USE_PREF_SIZE);
     }
 }

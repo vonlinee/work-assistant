@@ -29,6 +29,11 @@ public class TextHandlePane extends BorderPane implements ToolProvider {
         return "文本处理";
     }
 
+    @Override
+    public int getOrder() {
+        return 0;
+    }
+
     enum Separator implements Option {
 
         COMMA() {

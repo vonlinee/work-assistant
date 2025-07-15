@@ -9,6 +9,6 @@ public interface ToolProvider {
     Node getRoot();
 
     default int getOrder() {
-        return -1;
+        return Integer.MAX_VALUE;
     }
 }

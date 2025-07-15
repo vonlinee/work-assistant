@@ -7,11 +7,11 @@ import io.fxtras.fxml.FXMLLocator;
 import io.fxtras.scene.RouterView;
 import io.fxtras.scene.mvvm.View;
 import io.fxtras.utils.FXUtils;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.Nullable;
@@ -29,6 +29,7 @@ import org.workassistant.ui.layout.LayoutPane;
 import org.workassistant.ui.layout.NavigationMenu;
 import org.workassistant.ui.tools.fx.Tool;
 import org.workassistant.ui.tools.mybatis.MyBatisXmlToolPane;
+import org.workassistant.ui.view.AboutMe;
 import org.workassistant.ui.view.DataTypeInfoTableView;
 import org.workassistant.ui.view.FileTreeView;
 
@@ -71,7 +72,8 @@ public class App extends JavaFXApplication {
 
             @Override
             public String getUserAgentStylesheet() {
-                return "/theme/light.css";
+                // return "/theme/light.css";
+                return null;
             }
 
             @Override
@@ -139,11 +141,25 @@ public class App extends JavaFXApplication {
         MenuItem menuItem_import = new MenuItem("Import");
         fileMenu.getItems().addAll(menuItem_open, menuItem_import);
 
-        Menu helpMenu = new Menu("Help");
-        MenuItem menuItem_about = new MenuItem("关于");
-        helpMenu.getItems().addAll(menuItem_about);
+        Menu aboutMenu = new Menu("帮助");
 
-        menuBar.getMenus().addAll(fileMenu, helpMenu);
+        MenuItem menuItem = new MenuItem("关于");
+        menuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Dialog<ButtonType> dialog = new Dialog<>();
+                dialog.setTitle("关于");
+                dialog.setResizable(false);
+                DialogPane dialogPane = new DialogPane();
+                dialogPane.setContent(new AboutMe());
+                dialogPane.getButtonTypes().add(ButtonType.CLOSE);
+                dialog.setDialogPane(dialogPane);
+                dialog.show();
+            }
+        });
+        aboutMenu.getItems().add(menuItem);
+
+        menuBar.getMenus().addAll(fileMenu, aboutMenu);
         return menuBar;
     }
 

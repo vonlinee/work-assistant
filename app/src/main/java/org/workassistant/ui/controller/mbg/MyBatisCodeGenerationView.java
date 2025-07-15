@@ -29,7 +29,6 @@ import org.workassistant.ui.model.ConnectionConfig;
 import org.workassistant.ui.model.ConnectionRegistry;
 import org.workassistant.ui.model.TableGeneration;
 import org.workassistant.util.*;
-import org.workassistant.util.StringUtils;
 
 import java.io.File;
 import java.net.URL;
@@ -167,7 +166,7 @@ public class MyBatisCodeGenerationView extends FxmlView {
         });
         // 连接列表
         cboxConnection.setOnMouseClicked(event -> Platform.runLater(() -> cboxConnection.getItems()
-            .setAll(AppConfig.listConnectionInfo().stream().map(ConnectionConfig::getUniqueKey).toList())));
+                .setAll(AppConfig.listConnectionInfo().stream().map(ConnectionConfig::getUniqueKey).toList())));
 
         tblcTableName.setCellValueFactory(new PropertyValueFactory<>("tableName"));
         tblcTableName.setCellFactory(param -> {
@@ -345,12 +344,12 @@ public class MyBatisCodeGenerationView extends FxmlView {
      */
     private String validateConfig(ProjectConfiguration projectConfig) {
         return Validator.target(projectConfig)
-            .hasText(ProjectConfiguration::getProjectRootFolder, "项目根目录为空")
-            .hasText(ProjectConfiguration::getMapperPackageName, "Mapper接口包名为空")
-            .hasText(ProjectConfiguration::getEntityPackageName, "实体类包名为空")
-            .hasText(ProjectConfiguration::getEntityPackageFolder, "实体类所在目录为空")
-            .hasText(ProjectConfiguration::getMapperXmlPackage, "映射XML文件包名为空")
-            .getErrorMessages();
+                .hasText(ProjectConfiguration::getProjectRootFolder, "项目根目录为空")
+                .hasText(ProjectConfiguration::getMapperPackageName, "Mapper接口包名为空")
+                .hasText(ProjectConfiguration::getEntityPackageName, "实体类包名为空")
+                .hasText(ProjectConfiguration::getEntityPackageFolder, "实体类所在目录为空")
+                .hasText(ProjectConfiguration::getMapperXmlPackage, "映射XML文件包名为空")
+                .getErrorMessages();
     }
 
     /**
@@ -361,26 +360,26 @@ public class MyBatisCodeGenerationView extends FxmlView {
     @FXML
     public void chooseProjectFolder(ActionEvent event) {
         FileChooserDialog.showDirectoryDialog(getStage(event))
-            .ifPresent(file -> {
-                if (!analyser.isProjectRootDirectory(file)) {
-                    Alerts.error("目录%s不是项目根目录", file.getAbsolutePath()).showAndWait();
-                    return;
-                }
-                try {
-                    Set<String> packageNames = new HashSet<>(analyser.getPackageNames(file));
-                    String parentPackage = findMinLengthString(packageNames);
-                    if (parentPackage == null || parentPackage.isBlank()) {
-                        parentPackage = "org.example";
+                .ifPresent(file -> {
+                    if (!analyser.isProjectRootDirectory(file)) {
+                        Alerts.error("目录%s不是项目根目录", file.getAbsolutePath()).showAndWait();
+                        return;
                     }
-                    txfParentPackageName.setText(parentPackage);
-                    modelTargetPackage.setText(parentPackage + ".entity");
-                    txfXmlMapperPackageName.setText(parentPackage + ".mapper");
-                    txfMapperPackageName.setText(parentPackage + ".mapper");
-                    projectFolderField.setText(file.getAbsolutePath());
-                } catch (Exception exception) {
-                    Alerts.error(exception.getMessage()).showAndWait();
-                }
-            });
+                    try {
+                        Set<String> packageNames = new HashSet<>(analyser.getPackageNames(file));
+                        String parentPackage = findMinLengthString(packageNames);
+                        if (parentPackage == null || parentPackage.isBlank()) {
+                            parentPackage = "org.example";
+                        }
+                        txfParentPackageName.setText(parentPackage);
+                        modelTargetPackage.setText(parentPackage + ".entity");
+                        txfXmlMapperPackageName.setText(parentPackage + ".mapper");
+                        txfMapperPackageName.setText(parentPackage + ".mapper");
+                        projectFolderField.setText(file.getAbsolutePath());
+                    } catch (Exception exception) {
+                        Alerts.error(exception.getMessage()).showAndWait();
+                    }
+                });
     }
 
     /**

@@ -15,7 +15,7 @@ public class Messages {
     private static final Properties messages = new Properties();
 
     static {
-        try (InputStream inputStream = Messages.class.getResourceAsStream("message.properties")) {
+        try (InputStream inputStream = Messages.class.getResourceAsStream("messages/message.properties")) {
             messages.load(inputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);

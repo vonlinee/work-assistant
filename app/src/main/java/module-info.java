@@ -90,4 +90,5 @@ module workassistant {
 
     exports org.workassistant.tools.text to cn.hutool;
     exports org.workassistant.tools.excel to cn.hutool;
+    exports org.workassistant.ui.model;
 }
