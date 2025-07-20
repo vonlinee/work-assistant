@@ -1,5 +1,6 @@
 package org.assistant.tools.text;
 
+import org.assistant.util.HtmlTextExtractor;
 import org.assistant.util.StringUtils;
 
 enum TextHandlerEnum implements TextHandler {
@@ -24,7 +25,12 @@ enum TextHandlerEnum implements TextHandler {
 			return input.toUpperCase();
 		}
 	},
-	;
+	EXTRACT_HTML_TEXT {
+		@Override
+		public String handle(String input) {
+			return HtmlTextExtractor.extractAllText(input);
+		}
+	};
 
 	@Override
 	public String getLabel() {
