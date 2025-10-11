@@ -5,13 +5,11 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.metadata.data.ReadCellData;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.util.ConverterUtils;
+import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
+import com.alibaba.excel.write.style.column.SimpleColumnWidthStyleStrategy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.File;
+import java.util.*;
 
 /**
  * 使用easy-excel进行excel读取
@@ -36,7 +34,6 @@ public class ExcelUtils {
 		}
 		return columnName.toString();
 	}
-
 
 	public static List<Map<Integer, Object>> readXlsxByColumnIndex(String path) {
 		List<Map<Integer, Object>> list = new ArrayList<>();
@@ -112,7 +109,15 @@ public class ExcelUtils {
 		}
 	}
 
-	public static void write(String path) {
-
+	public static void writeXlsx(TableData tableData, File file) {
+		// 写入数据流，设置表头，设置自适应表头宽度
+		EasyExcel.write(file)         // 响应的数据流
+			.head(tableData.getHeads())         // 设置列标题
+			.needHead(true)                     // 表示需要生成列标题
+			.sheet("Sheet")           // sheet页的名称，可省略
+			//.table()                          // 没用到推荐不写，如果写了则会生成双标题
+//			.registerWriteHandler(new SimpleColumnWidthStyleStrategy(50)) // 设置自定义列宽
+			.registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())// 设置自适应列宽
+			.doWrite(tableData.getRows());                // 将数据写入
 	}
 }

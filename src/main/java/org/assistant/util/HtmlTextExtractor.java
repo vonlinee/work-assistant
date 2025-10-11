@@ -2,7 +2,6 @@ package org.assistant.util;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 public class HtmlTextExtractor {
 
@@ -15,7 +14,6 @@ public class HtmlTextExtractor {
         if (html == null || html.trim().isEmpty()) {
             return "";
         }
-
         try {
             Document doc = Jsoup.parse(html);
             return doc.text();
@@ -34,13 +32,10 @@ public class HtmlTextExtractor {
         if (html == null || html.trim().isEmpty()) {
             return "";
         }
-
         try {
             Document doc = Jsoup.parse(html);
-
             // 移除不需要的标签
             doc.select("script, style, head, meta, link").remove();
-
             return doc.body().text();
         } catch (Exception e) {
             return simpleHtmlClean(html);

@@ -3,6 +3,9 @@ package org.assistant.ui.pane;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * 仿照JavaFX的VBox
+ */
 public class VBox extends JPanel {
 
 	public VBox() {
