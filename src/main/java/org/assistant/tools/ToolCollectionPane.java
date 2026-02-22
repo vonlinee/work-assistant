@@ -12,8 +12,13 @@ public class ToolCollectionPane extends TabPane {
 		Reflections reflections = new Reflections(getClass().getPackageName());
 		Set<Class<? extends ToolProvider>> toolProviderTypes = reflections.getSubTypesOf(ToolProvider.class);
 		for (Class<? extends ToolProvider> toolProviderType : toolProviderTypes) {
-			ToolProvider provider = BeanUtils.instantiateClass(toolProviderType);
-			addTool(provider);
+			try {
+				ToolProvider provider = BeanUtils.instantiateClass(toolProviderType);
+				addTool(provider);
+			} catch (Exception e) {
+				System.err.println("Failed to load tool provider: " + toolProviderType.getName());
+				e.printStackTrace();
+			}
 		}
 	}
 
