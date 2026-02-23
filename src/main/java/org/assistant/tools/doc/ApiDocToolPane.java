@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.tree.*;
+import org.assistant.ui.controls.table.TreeTable;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -47,9 +48,9 @@ public class ApiDocToolPane extends BorderPane {
             "OPTIONS", new Color[] { new Color(0x0D, 0x5A, 0xA7), Color.WHITE });
 
     private final TextField projectPathField;
-    private final JTree apiTree;
-    private final DefaultTreeModel treeModel;
-    private final DefaultMutableTreeNode rootNode;
+    private final TreeTable<Object> apiTable;
+    private ApiTreeTableModel treeModel;
+    private DefaultMutableTreeNode rootNode;
     private final ComboBox<String> formatCombo;
     private ApiProject currentProject;
 
@@ -88,43 +89,34 @@ public class ApiDocToolPane extends BorderPane {
 
         setTop(topBar);
 
-        // --- Center: API tree with checkboxes ---
+        // --- Center: API tree table ---
+        apiTable = new TreeTable<>();
         rootNode = new DefaultMutableTreeNode("APIs");
-        treeModel = new DefaultTreeModel(rootNode);
-        apiTree = new JTree(treeModel);
-        apiTree.setRootVisible(false);
-        apiTree.setShowsRootHandles(true);
-        apiTree.setRowHeight(28);
-        apiTree.setCellRenderer(new ApiTreeCellRenderer());
+        treeModel = new ApiTreeTableModel(rootNode);
+        treeModel.bindTable(apiTable);
+        apiTable.setRowHeight(28);
 
-        // Toggle checkbox on click
-        apiTree.addMouseListener(new MouseAdapter() {
+        // Custom renderer for Method column
+        apiTable.getColumnModel().getColumn(1).setCellRenderer(new MethodCellRenderer());
+
+        apiTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                TreePath path = apiTree.getPathForLocation(e.getX(), e.getY());
-                if (path == null)
-                    return;
-                // Only toggle if click is in the checkbox area (first ~24px)
-                Rectangle bounds = apiTree.getPathBounds(path);
-                if (bounds != null && e.getX() < bounds.x + 24) {
-                    Object node = path.getLastPathComponent();
-                    if (node instanceof CheckableTreeNode) {
-                        CheckableTreeNode checkNode = (CheckableTreeNode) node;
-                        boolean newState = !checkNode.isChecked();
-                        checkNode.setChecked(newState);
-                        // Propagate to children
-                        setChildrenChecked(checkNode, newState);
-                        // Update parent state
-                        updateParentCheckState(checkNode);
-                        treeModel.nodeChanged(checkNode);
-                        apiTree.repaint();
+                if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+                    int row = apiTable.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        int modelRow = apiTable.convertRowIndexToModel(row);
+                        TreeNode node = treeModel.getVisibleNodes().get(modelRow);
+                        if (node.getAllowsChildren()) {
+                            treeModel.toggleNode(node);
+                        }
                     }
                 }
             }
         });
 
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setViewportView(apiTree);
+        scrollPane.setViewportView(apiTable);
         setCenter(scrollPane);
 
         // --- Bottom: format selector + export ---
@@ -200,27 +192,25 @@ public class ApiDocToolPane extends BorderPane {
             currentProject = scanner.scan(path);
 
             // Populate tree
-            rootNode.removeAllChildren();
+            rootNode = new DefaultMutableTreeNode("APIs");
             int apiCount = 0;
             for (ApiGroup group : currentProject.getGroups()) {
-                CheckableTreeNode groupNode = new CheckableTreeNode(group.getName(), true);
-                groupNode.setUserObject(group);
+                DefaultMutableTreeNode groupNode = new DefaultMutableTreeNode(
+                        new ApiTreeTableModel.ApiGroupWrapper(group));
 
                 for (WebApiInfo api : group.getApis()) {
-                    CheckableTreeNode apiNode = new CheckableTreeNode(
-                            api.getMethod() + " " + api.getPath(), true);
-                    apiNode.setUserObject(api);
+                    DefaultMutableTreeNode apiNode = new DefaultMutableTreeNode(
+                            new ApiTreeTableModel.ApiInfoWrapper(api));
                     groupNode.add(apiNode);
                     apiCount++;
                 }
                 rootNode.add(groupNode);
             }
-            treeModel.reload();
 
-            // Expand all groups
-            for (int i = 0; i < apiTree.getRowCount(); i++) {
-                apiTree.expandRow(i);
-            }
+            treeModel.unbindTable();
+            treeModel = new ApiTreeTableModel(rootNode);
+            treeModel.bindTable(apiTable);
+            apiTable.getColumnModel().getColumn(1).setCellRenderer(new MethodCellRenderer());
 
             JOptionPane.showMessageDialog(this,
                     "Parsed " + apiCount + " API endpoints from " +
@@ -320,14 +310,16 @@ public class ApiDocToolPane extends BorderPane {
         filtered.setBasePath(currentProject.getBasePath());
 
         for (int i = 0; i < rootNode.getChildCount(); i++) {
-            CheckableTreeNode groupNode = (CheckableTreeNode) rootNode.getChildAt(i);
-            ApiGroup originalGroup = (ApiGroup) groupNode.getUserObject();
+            DefaultMutableTreeNode groupNode = (DefaultMutableTreeNode) rootNode.getChildAt(i);
+            ApiTreeTableModel.ApiGroupWrapper gw = (ApiTreeTableModel.ApiGroupWrapper) groupNode.getUserObject();
+            ApiGroup originalGroup = gw.group;
 
             List<WebApiInfo> checkedApis = new ArrayList<>();
             for (int j = 0; j < groupNode.getChildCount(); j++) {
-                CheckableTreeNode apiNode = (CheckableTreeNode) groupNode.getChildAt(j);
-                if (apiNode.isChecked()) {
-                    checkedApis.add((WebApiInfo) apiNode.getUserObject());
+                DefaultMutableTreeNode apiNode = (DefaultMutableTreeNode) groupNode.getChildAt(j);
+                ApiTreeTableModel.ApiInfoWrapper aw = (ApiTreeTableModel.ApiInfoWrapper) apiNode.getUserObject();
+                if (aw.isChecked) {
+                    checkedApis.add(aw.api);
                 }
             }
 
@@ -352,151 +344,52 @@ public class ApiDocToolPane extends BorderPane {
 
     private void setAllChecked(boolean checked) {
         for (int i = 0; i < rootNode.getChildCount(); i++) {
-            CheckableTreeNode groupNode = (CheckableTreeNode) rootNode.getChildAt(i);
-            groupNode.setChecked(checked);
-            setChildrenChecked(groupNode, checked);
-        }
-        apiTree.repaint();
-    }
-
-    private void setChildrenChecked(CheckableTreeNode parent, boolean checked) {
-        for (int i = 0; i < parent.getChildCount(); i++) {
-            CheckableTreeNode child = (CheckableTreeNode) parent.getChildAt(i);
-            child.setChecked(checked);
-            setChildrenChecked(child, checked);
-        }
-    }
-
-    private void updateParentCheckState(CheckableTreeNode child) {
-        TreeNode parent = child.getParent();
-        if (parent instanceof CheckableTreeNode) {
-            CheckableTreeNode parentNode = (CheckableTreeNode) parent;
-            boolean allChecked = true;
-            for (int i = 0; i < parentNode.getChildCount(); i++) {
-                if (!((CheckableTreeNode) parentNode.getChildAt(i)).isChecked()) {
-                    allChecked = false;
-                    break;
-                }
+            DefaultMutableTreeNode groupNode = (DefaultMutableTreeNode) rootNode.getChildAt(i);
+            ApiTreeTableModel.ApiGroupWrapper gw = (ApiTreeTableModel.ApiGroupWrapper) groupNode.getUserObject();
+            gw.isChecked = checked;
+            for (int j = 0; j < groupNode.getChildCount(); j++) {
+                DefaultMutableTreeNode apiNode = (DefaultMutableTreeNode) groupNode.getChildAt(j);
+                ApiTreeTableModel.ApiInfoWrapper aw = (ApiTreeTableModel.ApiInfoWrapper) apiNode.getUserObject();
+                aw.isChecked = checked;
             }
-            parentNode.setChecked(allChecked);
-            treeModel.nodeChanged(parentNode);
         }
+        treeModel.fireTableDataChanged();
     }
 
-    // ==================== Tree node with checkbox state ====================
-
-    /**
-     * A tree node that carries a checked/unchecked state for selection.
-     */
-    private static class CheckableTreeNode extends DefaultMutableTreeNode {
-        private boolean checked;
-        private final String displayName;
-
-        CheckableTreeNode(String displayName, boolean checked) {
-            super(displayName);
-            this.displayName = displayName;
-            this.checked = checked;
-        }
-
-        boolean isChecked() {
-            return checked;
-        }
-
-        void setChecked(boolean checked) {
-            this.checked = checked;
-        }
-
-        String getDisplayName() {
-            return displayName;
-        }
-    }
-
-    // ==================== Custom tree cell renderer ====================
-
-    /**
-     * Renders tree nodes with a checkbox and color-coded HTTP method badges
-     * for API leaf nodes, and folder-style labels for group parent nodes.
-     */
-    private class ApiTreeCellRenderer extends DefaultTreeCellRenderer {
-
-        private final JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-        private final JCheckBox checkBox = new JCheckBox();
+    private static class MethodCellRenderer extends javax.swing.table.DefaultTableCellRenderer {
         private final JLabel methodLabel = new JLabel();
-        private final JLabel textLabel = new JLabel();
 
-        ApiTreeCellRenderer() {
-            panel.setOpaque(false);
-            checkBox.setOpaque(false);
+        MethodCellRenderer() {
             methodLabel.setOpaque(true);
             methodLabel.setFont(methodLabel.getFont().deriveFont(Font.BOLD, 11f));
             methodLabel.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
-            textLabel.setFont(textLabel.getFont().deriveFont(13f));
+            methodLabel.setHorizontalAlignment(SwingConstants.CENTER);
         }
 
         @Override
-        public Component getTreeCellRendererComponent(JTree tree, Object value,
-                boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-            panel.removeAll();
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
 
-            if (value instanceof CheckableTreeNode) {
-                CheckableTreeNode node = (CheckableTreeNode) value;
-                checkBox.setSelected(node.isChecked());
-                panel.add(checkBox);
-
-                Object data = node.getUserObject();
-                if (data instanceof WebApiInfo) {
-                    // Leaf: API endpoint — show [✓] [GET] /users - summary
-                    WebApiInfo api = (WebApiInfo) data;
-
-                    String method = api.getMethod().toUpperCase();
-                    methodLabel.setText(method);
-                    Color[] colors = METHOD_COLORS.get(method);
-                    if (colors != null) {
-                        methodLabel.setBackground(colors[0]);
-                        methodLabel.setForeground(colors[1]);
-                    } else {
-                        methodLabel.setBackground(new Color(0x99, 0x99, 0x99));
-                        methodLabel.setForeground(Color.WHITE);
-                    }
-                    panel.add(methodLabel);
-
-                    String text = api.getPath();
-                    if (api.getSummary() != null && !api.getSummary().isEmpty()) {
-                        text += "  —  " + api.getSummary();
-                    }
-                    if (api.isDeprecated()) {
-                        text += "  ⚠ DEPRECATED";
-                    }
-                    textLabel.setText(text);
-                    textLabel.setForeground(sel ? getTextSelectionColor() : getTextNonSelectionColor());
-                    panel.add(textLabel);
-                } else if (data instanceof ApiGroup) {
-                    // Parent: controller group — show [✓] 📂 ControllerName (N APIs)
-                    ApiGroup group = (ApiGroup) data;
-                    int apiCount = node.getChildCount();
-                    long checkedCount = 0;
-                    for (int i = 0; i < apiCount; i++) {
-                        if (((CheckableTreeNode) node.getChildAt(i)).isChecked())
-                            checkedCount++;
-                    }
-                    textLabel.setText("📂 " + group.getName() + "  (" + checkedCount + "/" + apiCount + ")");
-                    textLabel.setForeground(sel ? getTextSelectionColor() : new Color(0x1a, 0x1a, 0x2e));
-                    textLabel.setFont(textLabel.getFont().deriveFont(Font.BOLD, 13f));
-                    panel.add(textLabel);
-                } else {
-                    textLabel.setText(node.getDisplayName());
-                    textLabel.setForeground(getTextNonSelectionColor());
-                    panel.add(textLabel);
-                }
-            }
-
-            if (sel) {
-                panel.setOpaque(true);
-                panel.setBackground(getBackgroundSelectionColor());
+            JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+            if (isSelected) {
+                panel.setBackground(table.getSelectionBackground());
             } else {
-                panel.setOpaque(false);
+                panel.setBackground(table.getBackground());
             }
 
+            if (value instanceof String && !((String) value).isEmpty()) {
+                String method = (String) value;
+                methodLabel.setText(method);
+                Color[] colors = METHOD_COLORS.get(method);
+                if (colors != null) {
+                    methodLabel.setBackground(colors[0]);
+                    methodLabel.setForeground(colors[1]);
+                } else {
+                    methodLabel.setBackground(new Color(0x99, 0x99, 0x99));
+                    methodLabel.setForeground(Color.WHITE);
+                }
+                panel.add(methodLabel);
+            }
             return panel;
         }
     }
