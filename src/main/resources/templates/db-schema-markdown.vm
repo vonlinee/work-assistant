@@ -1,0 +1,17 @@
+# Database Schema Documentation
+
+#foreach($table in $schema.tables)
+## Table: `$table.name`
+
+#if($table.remarks && !$table.remarks.isEmpty())
+**Description:** $table.remarks
+
+#end
+| Column | Type | Size | Primary Key | Auto Increment | Nullable | Default | Remarks |
+|---|---|---|---|---|---|---|---|
+#foreach($col in $table.columns)
+| $col.name | $col.typeName | $col.size | #if($col.primaryKey)Yes#elseNo#end | #if($col.autoIncrement)Yes#elseNo#end | #if($col.nullable)Yes#elseNo#end | #if($col.defaultValue)$col.defaultValue#end | #if($col.remarks)$col.remarks.replace("
+", " ")#end |
+#end
+
+#end

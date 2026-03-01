@@ -22,32 +22,13 @@ public class MarkdownSchemaExporter implements SchemaExporter {
 
     @Override
     public void export(DbSchema schema, File outputFile) throws Exception {
-        try (FileWriter writer = new FileWriter(outputFile, StandardCharsets.UTF_8)) {
-            writer.write("# Database Schema Documentation\n\n");
+        org.apache.velocity.VelocityContext context = new org.apache.velocity.VelocityContext();
+        context.put("schema", schema);
 
-            for (TableInfo table : schema.getTables()) {
-                writer.write("## Table: `" + table.getName() + "`\n\n");
-                if (table.getRemarks() != null && !table.getRemarks().isEmpty()) {
-                    writer.write("**Description:** " + table.getRemarks() + "\n\n");
-                }
-
-                writer.write(
-                        "| Column | Type | Size | Primary Key | Auto Increment | Nullable | Default | Remarks |\n");
-                writer.write("|---|---|---|---|---|---|---|---|\n");
-
-                for (ColumnInfo col : table.getColumns()) {
-                    writer.write(String.format("| %s | %s | %d | %s | %s | %s | %s | %s |\n",
-                            col.getName(),
-                            col.getTypeName(),
-                            col.getSize(),
-                            col.isPrimaryKey() ? "Yes" : "No",
-                            col.isAutoIncrement() ? "Yes" : "No",
-                            col.isNullable() ? "Yes" : "No",
-                            col.getDefaultValue() != null ? col.getDefaultValue() : "",
-                            col.getRemarks() != null ? col.getRemarks().replace("\n", " ") : ""));
-                }
-                writer.write("\n");
-            }
+        try (java.io.FileWriter writer = new java.io.FileWriter(outputFile, java.nio.charset.StandardCharsets.UTF_8)) {
+            org.assistant.tools.util.TemplateUtil.render("templates/db-schema-markdown.vm", context, writer);
+        } catch (Exception e) {
+            throw new Exception("Failed to render markdown template", e);
         }
     }
 }

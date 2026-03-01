@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>#if($project.projectName)$tools.esc($project.projectName)#else API#end $msg.apiDocumentation()</title>
+<style>
+$css
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>#if($project.projectName)$tools.esc($project.projectName)#else API#end $msg.apiDocumentation()</h1>
+#if($project.version)
+  <p class="version">$msg.version() $tools.esc($project.version)</p>
+#end
+#if($project.description)
+  <p class="desc">$tools.esc($project.description)</p>
+#end
+</div>
+<div class="container">
+  <nav class="sidebar">
+    <h2>$msg.tableOfContents()</h2>
+    <input type="text" id="apiSearch" placeholder="Search APIs..." onkeyup="filterApis()" class="search-input">
+    <ul id="groupList">
+#foreach($group in $project.groups)
+      <li>
+        <a href="#$tools.anchor($group.name)">$tools.esc($group.name)</a>
+        <ul class="api-list">
+#foreach($api in $group.apis)
+          #set($apiAnchor = $tools.anchor("$group.name-$api.method-$api.path"))
+          <li><a href="#$apiAnchor"><span class="menu-method method-$api.method.toLowerCase()">$api.method</span> $tools.esc($api.path)</a></li>
+#end
+        </ul>
+      </li>
+#end
+    </ul>
+  </nav>
+  <main class="content">
+#foreach($group in $project.groups)
+    <section class="group" id="$tools.anchor($group.name)">
+      <h2>$tools.esc($group.name)</h2>
+#if($group.description && !$group.description.isEmpty())
+      <p class="desc">$tools.esc($group.description)</p>
+#end
+#if($group.basePath && !$group.basePath.isEmpty())
+      <p class="base-path">$msg.basePath(): <code>$tools.esc($group.basePath)</code></p>
+#end
+#foreach($api in $group.apis)
+      #set($methodClass = "method-$api.method.toLowerCase()")
+      #set($apiAnchor = $tools.anchor("$group.name-$api.method-$api.path"))
+      <div class="endpoint" id="$apiAnchor">
+        <div class="endpoint-header">
+          <span class="method $methodClass">$tools.esc($api.method)</span>
+          <span class="path">$tools.esc($api.path)</span>
+#if($api.deprecated)
+          <span class="deprecated">$msg.deprecated()</span>
+#end
+        </div>
+#if($api.summary && !$api.summary.isEmpty())
+        <p class="summary">$tools.esc($api.summary)</p>
+#end
+#if($api.returnType)
+        <p class="return">$msg.returnType(): <code>$tools.esc($api.returnType)</code></p>
+#end
+#if(!$api.params.isEmpty())
+        <table class="params">
+          <tr><th>$msg.headerName()</th><th>$msg.headerIn()</th><th>$msg.headerType()</th><th>$msg.headerRequired()</th><th>$msg.headerDefault()</th><th>$msg.headerDescription()</th></tr>
+#foreach($p in $api.params)
+          <tr>
+            <td>$tools.esc($p.name)</td>
+            <td>#if($p.in)$p.in.name().toLowerCase()#end</td>
+            <td><code>$tools.esc($p.dataType)</code></td>
+            <td>#if($p.required)✓#end</td>
+            <td>#if($p.defaultValue)$tools.esc($p.defaultValue)#end</td>
+            <td>#if($p.description)$tools.esc($p.description)#end</td>
+          </tr>
+#if($p.hasFields())
+          <tr><td colspan="6">
+            $tools.writeFieldTable($p.fields, $p.dataType, 0, $msg)
+          </td></tr>
+#end
+#end
+        </table>
+#end
+#if($api.returnTypeFields && !$api.returnTypeFields.isEmpty())
+        <div class="fields-section">
+          <h4>$msg.responseFields()</h4>
+          $tools.writeFieldTable($api.returnTypeFields, $api.returnType, 0, $msg)
+        </div>
+#end
+#if(!$api.params.isEmpty() || $api.path)
+        <div class="fields-section">
+          <h4>Sample Request</h4>
+          <p><strong>URL:</strong> <code>$tools.esc($mock.generateMockUrl($api))</code></p>
+#set($mockHeaders = $mock.generateMockHeaders($api.params))
+#if(!$mockHeaders.isEmpty())
+          <p><strong>Headers:</strong></p>
+          <pre><code>$tools.esc($mockHeaders)</code></pre>
+#end
+#set($method = $api.method.toUpperCase())
+#if($method != "GET" && $method != "DELETE")
+#set($mockReq = $mock.generateMockRequest($api.params))
+#if($mockReq != "{}")
+          <p><strong>Body:</strong></p>
+          <pre><code>$tools.esc($mockReq)</code></pre>
+#end
+#end
+        </div>
+#end
+#if($api.returnTypeFields && !$api.returnTypeFields.isEmpty())
+#set($mockResp = $mock.generateMockResponse($api.returnTypeFields, $api.returnType))
+#if($mockResp != "{}")
+        <div class="fields-section">
+          <h4>Sample Response</h4>
+          <pre><code>$tools.esc($mockResp)</code></pre>
+        </div>
+#end
+#end
+      </div>
+#end
+    </section>
+#end
+  </main>
+</div>
+<script>
+function filterApis() {
+  let input = document.getElementById('apiSearch').value.toLowerCase();
+  let groups = document.querySelectorAll('#groupList > li');
+  groups.forEach(group => {
+    let groupLinks = group.querySelectorAll('.api-list li');
+    let groupVisible = false;
+    groupLinks.forEach(link => {
+      let text = link.textContent.toLowerCase();
+      if (text.includes(input)) {
+        link.style.display = '';
+        groupVisible = true;
+      } else {
+        link.style.display = 'none';
+      }
+    });
+    if (groupVisible || group.querySelector('a').textContent.toLowerCase().includes(input)) {
+       group.style.display = '';
+    } else {
+       group.style.display = 'none';
+    }
+  });
+}
+</script>
+</body>
+</html>

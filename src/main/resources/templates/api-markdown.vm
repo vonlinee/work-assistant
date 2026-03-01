@@ -1,0 +1,113 @@
+#if($project.projectName)
+# $project.projectName $msg.apiDocumentation()
+#else
+# API $msg.apiDocumentation()
+#end
+
+#if($project.version)
+**$msg.version():** $project.version
+
+#end
+#if($project.description)
+$project.description
+
+#end
+## $msg.tableOfContents()
+
+#foreach($group in $project.groups)
+- [$group.name](#$tools.anchor($group.name))
+#end
+
+---
+
+#foreach($group in $project.groups)
+## $group.name
+
+#if($group.description && !$group.description.isEmpty())
+$group.description
+
+#end
+#if($group.basePath && !$group.basePath.isEmpty())
+**$msg.basePath():** `$group.basePath`
+
+#end
+#foreach($api in $group.apis)
+### $api.method `$api.path`#if($api.deprecated) ⚠️ $msg.deprecated()#end
+
+
+#if($api.summary && !$api.summary.isEmpty())
+$api.summary
+
+#end
+#if($api.returnType)
+**$msg.returnType():** `$api.returnType`
+
+#end
+#if(!$api.consumes.isEmpty())
+**Consumes:** $tools.join($api.consumes)
+
+#end
+#if(!$api.produces.isEmpty())
+**Produces:** $tools.join($api.produces)
+
+#end
+#if(!$api.params.isEmpty())
+**$msg.parameters():**
+
+| $msg.headerName() | $msg.headerIn() | $msg.headerType() | $msg.headerRequired() | $msg.headerDefault() | $msg.headerDescription() |
+|------|-----|------|----------|---------|-------------|
+#foreach($p in $api.params)
+| #if($p.name)$p.name#end | #if($p.in)$p.in.name().toLowerCase()#end | `#if($p.dataType)$p.dataType#end` | #if($p.required)✓#end | #if($p.defaultValue)$p.defaultValue#end | #if($p.description)$p.description#end |
+#end
+
+#foreach($p in $api.params)
+#if($p.hasFields())
+$tools.writeFieldTable($p.fields, $p.dataType, 0, $msg)
+#end
+#end
+#end
+#if($api.returnTypeFields && !$api.returnTypeFields.isEmpty())
+**$msg.responseFields():**
+
+$tools.writeFieldTable($api.returnTypeFields, $api.returnType, 0, $msg)
+#end
+#if(!$api.params.isEmpty() || $api.path)
+**Sample Request:**
+
+**URL:** `$mock.generateMockUrl($api)`
+
+#set($mockHeaders = $mock.generateMockHeaders($api.params))
+#if(!$mockHeaders.isEmpty())
+**Headers:**
+```text
+$mockHeaders
+```
+
+#end
+#set($method = $api.method.toUpperCase())
+#if($method != "GET" && $method != "DELETE")
+#set($mockReq = $mock.generateMockRequest($api.params))
+#if($mockReq != "{}")
+**Body:**
+```json
+$mockReq
+```
+
+#end
+#end
+#end
+#if($api.returnTypeFields && !$api.returnTypeFields.isEmpty())
+#set($mockResp = $mock.generateMockResponse($api.returnTypeFields, $api.returnType))
+#if($mockResp != "{}")
+**Sample Response:**
+
+```json
+$mockResp
+```
+
+#end
+#end
+---
+
+#end
+#end

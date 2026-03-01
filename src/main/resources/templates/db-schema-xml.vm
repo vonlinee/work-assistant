@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="#if($schema.catalog)$schema.catalog#else schema#end">
+#foreach($table in $schema.tables)
+  <table name="$table.name"#if($table.remarks && !$table.remarks.isEmpty()) description="$tools.esc($table.remarks)"#end>
+#foreach($col in $table.columns)
+    <column name="$col.name" primaryKey="$col.primaryKey" required="$!col.nullable" type="$col.typeName" size="$col.size" autoIncrement="$col.autoIncrement"#if($col.defaultValue) default="$tools.esc($col.defaultValue)"#end#if($col.remarks && !$col.remarks.isEmpty()) description="$tools.esc($col.remarks)"#end/>
+#end
+  </table>
+#end
+</database>

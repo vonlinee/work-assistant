@@ -26,236 +26,76 @@ public class HtmlExporter implements ApiExporter {
 
     @Override
     public void export(ApiProject project, File output) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n")
-                .append("<meta charset=\"UTF-8\">\n")
-                .append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
-                .append("<title>").append(esc(project.getProjectName())).append(" ").append(msg.apiDocumentation())
-                .append("</title>\n")
-                .append("<style>\n").append(CSS).append("\n</style>\n")
-                .append("</head>\n<body>\n");
+        org.apache.velocity.VelocityContext context = new org.apache.velocity.VelocityContext();
+        context.put("project", project);
+        context.put("msg", msg);
+        context.put("tools", new TemplateHelper());
+        context.put("mock", new org.assistant.tools.doc.MockDataGeneratorHelper());
+        context.put("css", CSS);
 
-        // Header
-        sb.append("<div class=\"header\">\n")
-                .append("  <h1>").append(esc(project.getProjectName())).append(" ").append(msg.apiDocumentation())
-                .append("</h1>\n");
-        if (project.getVersion() != null) {
-            sb.append("  <p class=\"version\">").append(msg.version()).append(" ").append(esc(project.getVersion()))
-                    .append("</p>\n");
+        try (java.io.FileWriter writer = new java.io.FileWriter(output, StandardCharsets.UTF_8)) {
+            org.assistant.tools.util.TemplateUtil.render("templates/api-html.vm", context, writer);
+        } catch (Exception e) {
+            throw new IOException("Failed to render HTML template", e);
         }
-        if (project.getDescription() != null) {
-            sb.append("  <p class=\"desc\">").append(esc(project.getDescription())).append("</p>\n");
+    }
+
+    public static class TemplateHelper {
+        public String esc(String s) {
+            if (s == null)
+                return "";
+            return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
         }
-        sb.append("</div>\n");
 
-        // Split layout container
-        sb.append("<div class=\"container\">\n");
+        public String anchor(String name) {
+            if (name == null)
+                return "";
+            return name.toLowerCase().replaceAll("[^a-z0-9]+", "-");
+        }
 
-        // Sidebar / TOC
-        sb.append("  <nav class=\"sidebar\">\n")
-                .append("    <h2>").append(msg.tableOfContents()).append("</h2>\n")
-                .append("    <input type=\"text\" id=\"apiSearch\" placeholder=\"Search APIs...\" onkeyup=\"filterApis()\" class=\"search-input\">\n")
-                .append("    <ul id=\"groupList\">\n");
-        for (ApiGroup group : project.getGroups()) {
-            sb.append("      <li>\n")
-                    .append("        <a href=\"#").append(anchorId(group.getName())).append("\">")
-                    .append(esc(group.getName())).append("</a>\n")
-                    .append("        <ul class=\"api-list\">\n");
-            for (WebApiInfo api : group.getApis()) {
-                String apiAnchor = anchorId(group.getName() + "-" + api.getMethod() + "-" + api.getPath());
-                sb.append("          <li><a href=\"#").append(apiAnchor).append("\">")
-                        .append("<span class=\"menu-method method-").append(api.getMethod().toLowerCase()).append("\">")
-                        .append(api.getMethod()).append("</span> ")
-                        .append(esc(api.getPath())).append("</a></li>\n");
+        public String join(java.util.List<String> list) {
+            if (list == null)
+                return "";
+            return String.join(", ", list);
+        }
+
+        public String writeFieldTable(java.util.List<FieldInfo> fields, String typeName, int depth,
+                ExportMessages msg) {
+            StringBuilder sb = new StringBuilder();
+            writeFieldTableRecursive(sb, fields, typeName, depth, msg);
+            return sb.toString();
+        }
+
+        private void writeFieldTableRecursive(StringBuilder sb, java.util.List<FieldInfo> fields, String typeName,
+                int depth, ExportMessages msg) {
+            String indent = "  ".repeat(depth);
+            if (depth == 0) {
+                sb.append(indent).append("<h4 class=\"field-type\"><code>").append(esc(typeName))
+                        .append("</code></h4>\n");
             }
-            sb.append("        </ul>\n      </li>\n");
-        }
-        sb.append("    </ul>\n  </nav>\n");
-
-        // Main content area
-        sb.append("  <main class=\"content\">\n");
-
-        // Groups
-        for (ApiGroup group : project.getGroups()) {
-            writeGroup(sb, group);
-        }
-
-        sb.append("  </main>\n") // End main content
-                .append("</div>\n") // End container
-                .append("<script>\n")
-                .append("function filterApis() {\n")
-                .append("  let input = document.getElementById('apiSearch').value.toLowerCase();\n")
-                .append("  let groups = document.querySelectorAll('#groupList > li');\n")
-                .append("  groups.forEach(group => {\n")
-                .append("    let groupLinks = group.querySelectorAll('.api-list li');\n")
-                .append("    let groupVisible = false;\n")
-                .append("    groupLinks.forEach(link => {\n")
-                .append("      let text = link.textContent.toLowerCase();\n")
-                .append("      if (text.includes(input)) {\n")
-                .append("        link.style.display = '';\n")
-                .append("        groupVisible = true;\n")
-                .append("      } else {\n")
-                .append("        link.style.display = 'none';\n")
-                .append("      }\n")
-                .append("    });\n")
-                .append("    if (groupVisible || group.querySelector('a').textContent.toLowerCase().includes(input)) {\n")
-                .append("       group.style.display = '';\n")
-                .append("    } else {\n")
-                .append("       group.style.display = 'none';\n")
-                .append("    }\n")
-                .append("  });\n")
-                .append("}\n")
-                .append("</script>\n")
-                .append("</body>\n</html>\n");
-        Files.writeString(output.toPath(), sb.toString(), StandardCharsets.UTF_8);
-    }
-
-    private void writeGroup(StringBuilder sb, ApiGroup group) {
-        sb.append("<section class=\"group\" id=\"").append(anchorId(group.getName())).append("\">\n")
-                .append("  <h2>").append(esc(group.getName())).append("</h2>\n");
-
-        if (group.getDescription() != null && !group.getDescription().isEmpty()) {
-            sb.append("  <p class=\"desc\">").append(esc(group.getDescription())).append("</p>\n");
-        }
-        if (group.getBasePath() != null && !group.getBasePath().isEmpty()) {
-            sb.append("  <p class=\"base-path\">").append(msg.basePath()).append(": <code>")
-                    .append(esc(group.getBasePath())).append("</code></p>\n");
-        }
-
-        for (WebApiInfo api : group.getApis()) {
-            writeEndpoint(sb, api, group.getName());
-        }
-        sb.append("</section>\n");
-    }
-
-    private void writeEndpoint(StringBuilder sb, WebApiInfo api, String groupName) {
-        String methodClass = "method-" + api.getMethod().toLowerCase();
-        String apiAnchor = anchorId(groupName + "-" + api.getMethod() + "-" + api.getPath());
-        sb.append("<div class=\"endpoint\" id=\"").append(apiAnchor).append("\">\n")
-                .append("  <div class=\"endpoint-header\">\n")
-                .append("    <span class=\"method ").append(methodClass).append("\">").append(esc(api.getMethod()))
-                .append("</span>\n")
-                .append("    <span class=\"path\">").append(esc(api.getPath())).append("</span>\n");
-        if (api.isDeprecated()) {
-            sb.append("    <span class=\"deprecated\">").append(msg.deprecated()).append("</span>\n");
-        }
-        sb.append("  </div>\n");
-
-        if (api.getSummary() != null && !api.getSummary().isEmpty()) {
-            sb.append("  <p class=\"summary\">").append(esc(api.getSummary())).append("</p>\n");
-        }
-
-        if (api.getReturnType() != null) {
-            sb.append("  <p class=\"return\">").append(msg.returnType()).append(": <code>")
-                    .append(esc(api.getReturnType())).append("</code></p>\n");
-        }
-
-        if (!api.getParams().isEmpty()) {
-            sb.append("  <table class=\"params\">\n")
-                    .append("    <tr><th>").append(msg.headerName()).append("</th><th>").append(msg.headerIn())
-                    .append("</th><th>").append(msg.headerType()).append("</th><th>").append(msg.headerRequired())
-                    .append("</th><th>").append(msg.headerDefault()).append("</th><th>").append(msg.headerDescription())
-                    .append("</th></tr>\n");
-            for (ApiParam p : api.getParams()) {
-                sb.append("    <tr>")
-                        .append("<td>").append(esc(p.getName())).append("</td>")
-                        .append("<td>").append(p.getIn() != null ? p.getIn().name().toLowerCase() : "").append("</td>")
-                        .append("<td><code>").append(esc(p.getDataType())).append("</code></td>")
-                        .append("<td>").append(p.isRequired() ? "\u2713" : "").append("</td>")
-                        .append("<td>").append(p.getDefaultValue() != null ? esc(p.getDefaultValue()) : "")
+            sb.append(indent).append("<table class=\"fields\">\n");
+            sb.append(indent)
+                    .append("<tr><th>").append(msg.headerField()).append("</th><th>").append(msg.headerType())
+                    .append("</th><th>").append(msg.headerRequired()).append("</th><th>").append(msg.headerDefault())
+                    .append("</th><th>").append(msg.headerDescription()).append("</th></tr>\n");
+            for (FieldInfo f : fields) {
+                sb.append(indent).append("<tr>")
+                        .append("<td>").append(esc(f.getName())).append("</td>")
+                        .append("<td><code>").append(esc(f.getType())).append("</code></td>")
+                        .append("<td>").append(f.isRequired() ? "\u2713" : "").append("</td>")
+                        .append("<td>").append(f.getDefaultValue() != null ? esc(f.getDefaultValue()) : "")
                         .append("</td>")
-                        .append("<td>").append(p.getDescription() != null ? esc(p.getDescription()) : "")
+                        .append("<td>").append(f.getDescription() != null ? esc(f.getDescription()) : "")
                         .append("</td>")
                         .append("</tr>\n");
-                // Render resolved fields for complex types
-                if (p.hasFields()) {
-                    sb.append("    <tr><td colspan=\"6\">\n");
-                    writeFieldTable(sb, p.getFields(), p.getDataType(), 0);
-                    sb.append("    </td></tr>\n");
+                if (f.hasChildren() && depth < 2) {
+                    sb.append(indent).append("<tr><td colspan=\"5\">\n");
+                    writeFieldTableRecursive(sb, f.getChildren(), f.getType(), depth + 1, msg);
+                    sb.append(indent).append("</td></tr>\n");
                 }
             }
-            sb.append("  </table>\n");
+            sb.append(indent).append("</table>\n");
         }
-
-        // Return type fields
-        if (api.getReturnTypeFields() != null && !api.getReturnTypeFields().isEmpty()) {
-            sb.append("  <div class=\"fields-section\">\n")
-                    .append("    <h4>").append(msg.responseFields()).append("</h4>\n");
-            writeFieldTable(sb, api.getReturnTypeFields(), api.getReturnType(), 0);
-            sb.append("  </div>\n");
-        }
-
-        if (!api.getParams().isEmpty() || api.getPath() != null) {
-            sb.append("  <div class=\"fields-section\">\n")
-                    .append("    <h4>Sample Request</h4>\n");
-
-            String mockUrl = MockDataGenerator.generateMockUrl(api);
-            sb.append("    <p><strong>URL:</strong> <code>").append(esc(mockUrl)).append("</code></p>\n");
-
-            String mockHeaders = MockDataGenerator.generateMockHeaders(api.getParams());
-            if (!mockHeaders.isEmpty()) {
-                sb.append("    <p><strong>Headers:</strong></p>\n")
-                        .append("    <pre><code>").append(esc(mockHeaders)).append("</code></pre>\n");
-            }
-
-            String method = api.getMethod().toUpperCase();
-            if (!"GET".equals(method) && !"DELETE".equals(method)) {
-                String mockReq = MockDataGenerator.generateMockRequest(api.getParams());
-                if (!"{}".equals(mockReq)) {
-                    sb.append("    <p><strong>Body JSON:</strong></p>\n")
-                            .append("    <pre><code>").append(esc(mockReq)).append("</code></pre>\n");
-                }
-            }
-            sb.append("  </div>\n");
-        }
-
-        if (api.getReturnTypeFields() != null && !api.getReturnTypeFields().isEmpty()) {
-            String mockResp = MockDataGenerator.generateMockResponse(api.getReturnTypeFields(), api.getReturnType());
-            if (!"{}".equals(mockResp)) {
-                sb.append("  <div class=\"fields-section\">\n")
-                        .append("    <h4>Sample Response</h4>\n")
-                        .append("    <pre><code>").append(esc(mockResp)).append("</code></pre>\n")
-                        .append("  </div>\n");
-            }
-        }
-
-        sb.append("</div>\n");
-    }
-
-    private void writeFieldTable(StringBuilder sb, java.util.List<FieldInfo> fields, String typeName, int depth) {
-        String indent = "      ".repeat(depth + 1);
-        sb.append(indent).append("<div class=\"field-type\"><code>").append(esc(typeName))
-                .append("</code> ").append(msg.fields()).append(":</div>\n");
-        sb.append(indent).append("<table class=\"fields\">\n")
-                .append(indent)
-                .append("<tr><th>").append(msg.headerField()).append("</th><th>").append(msg.headerType())
-                .append("</th><th>").append(msg.headerRequired()).append("</th><th>").append(msg.headerDefault())
-                .append("</th><th>").append(msg.headerDescription()).append("</th></tr>\n");
-        for (FieldInfo f : fields) {
-            sb.append(indent).append("<tr>")
-                    .append("<td>").append(esc(f.getName())).append("</td>")
-                    .append("<td><code>").append(esc(f.getType())).append("</code></td>")
-                    .append("<td>").append(f.isRequired() ? "\u2713" : "").append("</td>")
-                    .append("<td>").append(f.getDefaultValue() != null ? esc(f.getDefaultValue()) : "").append("</td>")
-                    .append("<td>").append(f.getDescription() != null ? esc(f.getDescription()) : "").append("</td>")
-                    .append("</tr>\n");
-            if (f.hasChildren() && depth < 2) {
-                sb.append(indent).append("<tr><td colspan=\"5\">\n");
-                writeFieldTable(sb, f.getChildren(), f.getType(), depth + 1);
-                sb.append(indent).append("</td></tr>\n");
-            }
-        }
-        sb.append(indent).append("</table>\n");
-    }
-
-    private String esc(String s) {
-        if (s == null)
-            return "";
-        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
-    }
-
-    private String anchorId(String name) {
-        return name.toLowerCase().replaceAll("[^a-z0-9]+", "-");
     }
 
     private static final String CSS = """
