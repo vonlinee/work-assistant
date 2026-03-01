@@ -24,11 +24,39 @@ public class SchemaExporterRegistry {
         exporters.put(exporter.getFormatName(), exporter);
     }
 
+    private String getCustomFormatName(String templateName) {
+        String base = templateName.substring(10, templateName.length() - 3);
+        return "Custom (" + base + ")";
+    }
+
     public Collection<String> getFormatNames() {
-        return exporters.keySet();
+        java.util.List<String> names = new java.util.ArrayList<>(exporters.keySet());
+        for (String t : org.assistant.tools.util.TemplateManager.getAllAvailableTemplates()) {
+            if (t.startsWith("db-schema-") && t.endsWith(".vm")) {
+                if (!t.equals("db-schema-markdown.vm") && !t.equals("db-schema-xml.vm")) {
+                    String customName = getCustomFormatName(t);
+                    if (!names.contains(customName)) {
+                        names.add(customName);
+                    }
+                }
+            }
+        }
+        return names;
     }
 
     public Optional<SchemaExporter> getExporter(String formatName) {
-        return Optional.ofNullable(exporters.get(formatName));
+        if (exporters.containsKey(formatName)) {
+            return Optional.ofNullable(exporters.get(formatName));
+        }
+        for (String t : org.assistant.tools.util.TemplateManager.getAllAvailableTemplates()) {
+            if (t.startsWith("db-schema-") && t.endsWith(".vm")) {
+                if (!t.equals("db-schema-markdown.vm") && !t.equals("db-schema-xml.vm")
+                        && getCustomFormatName(t).equals(formatName)) {
+                    String ext = t.substring(10, t.length() - 3);
+                    return Optional.of(new DynamicSchemaExporter(t, formatName, ext));
+                }
+            }
+        }
+        return Optional.empty();
     }
 }

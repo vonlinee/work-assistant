@@ -41,11 +41,20 @@ public class ApiExporterRegistry {
         exporters.put(exporter.getFormatName(), exporter);
     }
 
-    /**
-     * Get an exporter by its format name.
-     */
     public Optional<ApiExporter> getExporter(String formatName) {
-        return Optional.ofNullable(exporters.get(formatName));
+        if (exporters.containsKey(formatName)) {
+            return Optional.ofNullable(exporters.get(formatName));
+        }
+        for (String t : org.assistant.tools.util.TemplateManager.getAllAvailableTemplates()) {
+            if (t.startsWith("api-") && t.endsWith(".vm")) {
+                if (!t.equals("api-markdown.vm") && !t.equals("api-html.vm")
+                        && getCustomFormatName(t).equals(formatName)) {
+                    String ext = t.substring(4, t.length() - 3);
+                    return Optional.of(new DynamicApiExporter(t, formatName, ext));
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -55,10 +64,23 @@ public class ApiExporterRegistry {
         return new ArrayList<>(exporters.values());
     }
 
-    /**
-     * Get all registered format names (for UI combo box).
-     */
+    private String getCustomFormatName(String templateName) {
+        String base = templateName.substring(4, templateName.length() - 3);
+        return "Custom (" + base + ")";
+    }
+
     public List<String> getFormatNames() {
-        return new ArrayList<>(exporters.keySet());
+        List<String> names = new ArrayList<>(exporters.keySet());
+        for (String t : org.assistant.tools.util.TemplateManager.getAllAvailableTemplates()) {
+            if (t.startsWith("api-") && t.endsWith(".vm")) {
+                if (!t.equals("api-markdown.vm") && !t.equals("api-html.vm")) {
+                    String customName = getCustomFormatName(t);
+                    if (!names.contains(customName)) {
+                        names.add(customName);
+                    }
+                }
+            }
+        }
+        return names;
     }
 }
