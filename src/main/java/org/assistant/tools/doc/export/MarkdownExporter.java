@@ -121,6 +121,32 @@ public class MarkdownExporter implements ApiExporter {
             writeFieldTable(sb, api.getReturnTypeFields(), api.getReturnType(), 0);
         }
 
+        if (!api.getParams().isEmpty() || api.getPath() != null) {
+            sb.append("**Sample Request:**\n\n");
+            String mockUrl = MockDataGenerator.generateMockUrl(api);
+            sb.append("**URL:** `").append(mockUrl).append("`\n\n");
+
+            String mockHeaders = MockDataGenerator.generateMockHeaders(api.getParams());
+            if (!mockHeaders.isEmpty()) {
+                sb.append("**Headers:**\n```text\n").append(mockHeaders).append("```\n\n");
+            }
+
+            String method = api.getMethod().toUpperCase();
+            if (!"GET".equals(method) && !"DELETE".equals(method)) {
+                String mockReq = MockDataGenerator.generateMockRequest(api.getParams());
+                if (!"{}".equals(mockReq)) {
+                    sb.append("**Body:**\n```json\n").append(mockReq).append("\n```\n\n");
+                }
+            }
+        }
+
+        if (api.getReturnTypeFields() != null && !api.getReturnTypeFields().isEmpty()) {
+            String mockResp = MockDataGenerator.generateMockResponse(api.getReturnTypeFields(), api.getReturnType());
+            if (!"{}".equals(mockResp)) {
+                sb.append("**Sample Response:**\n\n```json\n").append(mockResp).append("\n```\n\n");
+            }
+        }
+
         sb.append("---\n\n");
     }
 

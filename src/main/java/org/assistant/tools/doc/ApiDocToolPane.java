@@ -109,7 +109,49 @@ public class ApiDocToolPane extends BorderPane {
                         TreeNode node = treeModel.getVisibleNodes().get(modelRow);
                         if (node.getAllowsChildren()) {
                             treeModel.toggleNode(node);
+                        } else if (node instanceof DefaultMutableTreeNode && ((DefaultMutableTreeNode) node)
+                                .getUserObject() instanceof ApiTreeTableModel.ApiInfoWrapper) {
+                            ApiTreeTableModel.ApiInfoWrapper aw = (ApiTreeTableModel.ApiInfoWrapper) ((DefaultMutableTreeNode) node)
+                                    .getUserObject();
+                            MockDataDialog dialog = new MockDataDialog(
+                                    SwingUtilities.getWindowAncestor(ApiDocToolPane.this), aw.api);
+                            dialog.setVisible(true);
                         }
+                    }
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger())
+                    showPopup(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger())
+                    showPopup(e);
+            }
+
+            private void showPopup(MouseEvent e) {
+                int row = apiTable.rowAtPoint(e.getPoint());
+                if (row >= 0) {
+                    apiTable.setRowSelectionInterval(row, row);
+                    int modelRow = apiTable.convertRowIndexToModel(row);
+                    TreeNode node = treeModel.getVisibleNodes().get(modelRow);
+                    if (node instanceof DefaultMutableTreeNode && ((DefaultMutableTreeNode) node)
+                            .getUserObject() instanceof ApiTreeTableModel.ApiInfoWrapper) {
+                        ApiTreeTableModel.ApiInfoWrapper aw = (ApiTreeTableModel.ApiInfoWrapper) ((DefaultMutableTreeNode) node)
+                                .getUserObject();
+                        JPopupMenu menu = new JPopupMenu();
+                        JMenuItem mockItem = new JMenuItem("Show Mock Data");
+                        mockItem.addActionListener(ev -> {
+                            MockDataDialog dialog = new MockDataDialog(
+                                    SwingUtilities.getWindowAncestor(ApiDocToolPane.this), aw.api);
+                            dialog.setVisible(true);
+                        });
+                        menu.add(mockItem);
+                        menu.show(e.getComponent(), e.getX(), e.getY());
                     }
                 }
             }

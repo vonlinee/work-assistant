@@ -139,6 +139,40 @@ public class HtmlExporter implements ApiExporter {
             sb.append("  </div>\n");
         }
 
+        if (!api.getParams().isEmpty() || api.getPath() != null) {
+            sb.append("  <div class=\"fields-section\">\n")
+                    .append("    <h4>Sample Request</h4>\n");
+
+            String mockUrl = MockDataGenerator.generateMockUrl(api);
+            sb.append("    <p><strong>URL:</strong> <code>").append(esc(mockUrl)).append("</code></p>\n");
+
+            String mockHeaders = MockDataGenerator.generateMockHeaders(api.getParams());
+            if (!mockHeaders.isEmpty()) {
+                sb.append("    <p><strong>Headers:</strong></p>\n")
+                        .append("    <pre><code>").append(esc(mockHeaders)).append("</code></pre>\n");
+            }
+
+            String method = api.getMethod().toUpperCase();
+            if (!"GET".equals(method) && !"DELETE".equals(method)) {
+                String mockReq = MockDataGenerator.generateMockRequest(api.getParams());
+                if (!"{}".equals(mockReq)) {
+                    sb.append("    <p><strong>Body JSON:</strong></p>\n")
+                            .append("    <pre><code>").append(esc(mockReq)).append("</code></pre>\n");
+                }
+            }
+            sb.append("  </div>\n");
+        }
+
+        if (api.getReturnTypeFields() != null && !api.getReturnTypeFields().isEmpty()) {
+            String mockResp = MockDataGenerator.generateMockResponse(api.getReturnTypeFields(), api.getReturnType());
+            if (!"{}".equals(mockResp)) {
+                sb.append("  <div class=\"fields-section\">\n")
+                        .append("    <h4>Sample Response</h4>\n")
+                        .append("    <pre><code>").append(esc(mockResp)).append("</code></pre>\n")
+                        .append("  </div>\n");
+            }
+        }
+
         sb.append("</div>\n");
     }
 

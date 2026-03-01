@@ -248,6 +248,86 @@ public class DocxExporter implements ApiExporter {
             }
         }
 
+        if (!api.getParams().isEmpty() || api.getPath() != null) {
+            XWPFParagraph reqTitle = document.createParagraph();
+            XWPFRun reqRun = reqTitle.createRun();
+            reqRun.setBold(true);
+            reqRun.setText("Sample Request:");
+
+            String mockUrl = MockDataGenerator.generateMockUrl(api);
+            XWPFParagraph urlPara = document.createParagraph();
+            XWPFRun urlRun = urlPara.createRun();
+            urlRun.setBold(true);
+            urlRun.setText("URL: ");
+            XWPFRun urlDataRun = urlPara.createRun();
+            urlDataRun.setFontFamily("Consolas");
+            urlDataRun.setFontSize(9);
+            urlDataRun.setText(mockUrl);
+
+            String mockHeaders = MockDataGenerator.generateMockHeaders(api.getParams());
+            if (!mockHeaders.isEmpty()) {
+                XWPFParagraph hPara = document.createParagraph();
+                XWPFRun hRun = hPara.createRun();
+                hRun.setBold(true);
+                hRun.setText("Headers:");
+                XWPFParagraph hDataPara = document.createParagraph();
+                XWPFRun hDataRun = hDataPara.createRun();
+                hDataRun.setFontFamily("Consolas");
+                hDataRun.setFontSize(9);
+                for (String line : mockHeaders.split("\n")) {
+                    hDataRun.setText(line);
+                    hDataRun.addBreak();
+                }
+            }
+
+            String method = api.getMethod().toUpperCase();
+            if (!"GET".equals(method) && !"DELETE".equals(method)) {
+                String mockReq = MockDataGenerator.generateMockRequest(api.getParams());
+                if (!"{}".equals(mockReq)) {
+                    XWPFParagraph bodyPara = document.createParagraph();
+                    XWPFRun bodyRun = bodyPara.createRun();
+                    bodyRun.setBold(true);
+                    bodyRun.setText("Body:");
+
+                    XWPFParagraph reqData = document.createParagraph();
+                    XWPFRun reqDataRun = reqData.createRun();
+                    reqDataRun.setFontFamily("Consolas");
+                    reqDataRun.setFontSize(9);
+                    if (mockReq.contains("\n")) {
+                        for (String line : mockReq.split("\n")) {
+                            reqDataRun.setText(line);
+                            reqDataRun.addBreak();
+                        }
+                    } else {
+                        reqDataRun.setText(mockReq);
+                    }
+                }
+            }
+        }
+
+        if (api.getReturnTypeFields() != null && !api.getReturnTypeFields().isEmpty()) {
+            String mockResp = MockDataGenerator.generateMockResponse(api.getReturnTypeFields(), api.getReturnType());
+            if (!"{}".equals(mockResp)) {
+                XWPFParagraph respTitle = document.createParagraph();
+                XWPFRun respRun = respTitle.createRun();
+                respRun.setBold(true);
+                respRun.setText("Sample Response:");
+
+                XWPFParagraph respData = document.createParagraph();
+                XWPFRun respDataRun = respData.createRun();
+                respDataRun.setFontFamily("Consolas");
+                respDataRun.setFontSize(9);
+                if (mockResp.contains("\n")) {
+                    for (String line : mockResp.split("\n")) {
+                        respDataRun.setText(line);
+                        respDataRun.addBreak();
+                    }
+                } else {
+                    respDataRun.setText(mockResp);
+                }
+            }
+        }
+
         document.createParagraph(); // Spacer
     }
 
