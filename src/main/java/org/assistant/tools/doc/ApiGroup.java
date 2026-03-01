@@ -1,7 +1,5 @@
 package org.assistant.tools.doc;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +7,7 @@ import java.util.List;
  * A group of related API endpoints, typically corresponding to one controller
  * class.
  */
-@Data
+
 public class ApiGroup {
 
     /** Group name (usually the controller class simple name) */
@@ -29,6 +27,46 @@ public class ApiGroup {
 
     /** Endpoints in this group */
     private List<WebApiInfo> apis = new ArrayList<>();
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getBasePath() {
+        return basePath;
+    }
+
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
+    }
+
+    public String getControllerClass() {
+        return controllerClass;
+    }
+
+    public void setControllerClass(String controllerClass) {
+        this.controllerClass = controllerClass;
+    }
+
+    public List<WebApiInfo> getApis() {
+        return apis;
+    }
+
+    public void setApis(List<WebApiInfo> apis) {
+        this.apis = apis;
+    }
 
     public void addApi(WebApiInfo api) {
         this.apis.add(api);

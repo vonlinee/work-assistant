@@ -1,7 +1,5 @@
 package org.assistant.tools.doc;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +11,7 @@ import java.util.List;
  * representing each field's name, type, and documentation.
  * </p>
  */
-@Data
+
 public class FieldInfo {
 
     /** Field name (Java identifier) */
@@ -39,6 +37,70 @@ public class FieldInfo {
 
     /** Nested fields, if this field is itself a complex type */
     private List<FieldInfo> children = new ArrayList<>();
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
+    public String getExample() {
+        return example;
+    }
+
+    public void setExample(String example) {
+        this.example = example;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    public List<FieldInfo> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<FieldInfo> children) {
+        this.children = children;
+    }
 
     /**
      * Whether this field has nested children (i.e. is itself a complex type).

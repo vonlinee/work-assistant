@@ -1,10 +1,5 @@
 package org.assistant.ui.controls.table;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Setter
-@Getter
 public class ColumnInfo<T> {
 
 	private String title;
@@ -12,6 +7,22 @@ public class ColumnInfo<T> {
 
 	public ColumnInfo(String title, Class<?> type) {
 		this.title = title;
+		this.type = type;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public Class<?> getType() {
+		return type;
+	}
+
+	public void setType(Class<?> type) {
 		this.type = type;
 	}
 }

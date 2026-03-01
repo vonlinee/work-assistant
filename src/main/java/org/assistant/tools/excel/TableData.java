@@ -1,12 +1,9 @@
 package org.assistant.tools.excel;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Data
 public class TableData {
 
 	/**
@@ -18,6 +15,22 @@ public class TableData {
 	 * 行数据
 	 */
 	List<Map<Integer, Object>> rows;
+
+	public List<TableHeader> getHeaders() {
+		return headers;
+	}
+
+	public void setHeaders(List<TableHeader> headers) {
+		this.headers = headers;
+	}
+
+	public List<Map<Integer, Object>> getRows() {
+		return rows;
+	}
+
+	public void setRows(List<Map<Integer, Object>> rows) {
+		this.rows = rows;
+	}
 
 	public List<List<String>> getHeads() {
 		List<List<String>> heads = new ArrayList<>();

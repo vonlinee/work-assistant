@@ -1,10 +1,7 @@
 package org.assistant.tools.excel;
 
-import lombok.Data;
-
 import java.util.List;
 
-@Data
 public class TableHeader {
 
 	/**
@@ -31,6 +28,46 @@ public class TableHeader {
 	 * 子标题
 	 */
 	private List<TableHeader> children;
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getField() {
+		return field;
+	}
+
+	public void setField(String field) {
+		this.field = field;
+	}
+
+	public int getColumnNum() {
+		return columnNum;
+	}
+
+	public void setColumnNum(int columnNum) {
+		this.columnNum = columnNum;
+	}
+
+	public String getColumnNo() {
+		return columnNo;
+	}
+
+	public void setColumnNo(String columnNo) {
+		this.columnNo = columnNo;
+	}
+
+	public List<TableHeader> getChildren() {
+		return children;
+	}
+
+	public void setChildren(List<TableHeader> children) {
+		this.children = children;
+	}
 
 	public boolean hasChildren() {
 		return children != null && !children.isEmpty();

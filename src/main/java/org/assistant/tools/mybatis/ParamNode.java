@@ -3,15 +3,15 @@ package org.assistant.tools.mybatis;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.mapping.ParameterMapping;
+import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.ArrayList;
 import java.util.List;
 
 @Setter
 @Getter
-public class ParamNode extends DefaultMutableTreeNode {
+public class ParamNode extends DefaultMutableTreeTableNode {
 
 	/**
 	 * 参数Key
@@ -54,14 +54,11 @@ public class ParamNode extends DefaultMutableTreeNode {
 	}
 
 	public boolean hasChildren() {
-		return children != null && !children.isEmpty();
+		return getChildCount() > 0;
 	}
 
 	public void addChild(ParamNode child) {
-		if (children == null) {
-			children = new ArrayList<>();
-		}
-		children.add(child);
+		add(child);
 	}
 
 	@Override
