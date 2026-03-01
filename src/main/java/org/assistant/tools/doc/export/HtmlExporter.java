@@ -48,20 +48,65 @@ public class HtmlExporter implements ApiExporter {
         }
         sb.append("</div>\n");
 
-        // TOC
-        sb.append("<nav class=\"toc\"><h2>").append(msg.tableOfContents()).append("</h2><ul>\n");
+        // Split layout container
+        sb.append("<div class=\"container\">\n");
+
+        // Sidebar / TOC
+        sb.append("  <nav class=\"sidebar\">\n")
+                .append("    <h2>").append(msg.tableOfContents()).append("</h2>\n")
+                .append("    <input type=\"text\" id=\"apiSearch\" placeholder=\"Search APIs...\" onkeyup=\"filterApis()\" class=\"search-input\">\n")
+                .append("    <ul id=\"groupList\">\n");
         for (ApiGroup group : project.getGroups()) {
-            sb.append("<li><a href=\"#").append(anchorId(group.getName())).append("\">")
-                    .append(esc(group.getName())).append("</a></li>\n");
+            sb.append("      <li>\n")
+                    .append("        <a href=\"#").append(anchorId(group.getName())).append("\">")
+                    .append(esc(group.getName())).append("</a>\n")
+                    .append("        <ul class=\"api-list\">\n");
+            for (WebApiInfo api : group.getApis()) {
+                String apiAnchor = anchorId(group.getName() + "-" + api.getMethod() + "-" + api.getPath());
+                sb.append("          <li><a href=\"#").append(apiAnchor).append("\">")
+                        .append("<span class=\"menu-method method-").append(api.getMethod().toLowerCase()).append("\">")
+                        .append(api.getMethod()).append("</span> ")
+                        .append(esc(api.getPath())).append("</a></li>\n");
+            }
+            sb.append("        </ul>\n      </li>\n");
         }
-        sb.append("</ul></nav>\n");
+        sb.append("    </ul>\n  </nav>\n");
+
+        // Main content area
+        sb.append("  <main class=\"content\">\n");
 
         // Groups
         for (ApiGroup group : project.getGroups()) {
             writeGroup(sb, group);
         }
 
-        sb.append("</body>\n</html>\n");
+        sb.append("  </main>\n") // End main content
+                .append("</div>\n") // End container
+                .append("<script>\n")
+                .append("function filterApis() {\n")
+                .append("  let input = document.getElementById('apiSearch').value.toLowerCase();\n")
+                .append("  let groups = document.querySelectorAll('#groupList > li');\n")
+                .append("  groups.forEach(group => {\n")
+                .append("    let groupLinks = group.querySelectorAll('.api-list li');\n")
+                .append("    let groupVisible = false;\n")
+                .append("    groupLinks.forEach(link => {\n")
+                .append("      let text = link.textContent.toLowerCase();\n")
+                .append("      if (text.includes(input)) {\n")
+                .append("        link.style.display = '';\n")
+                .append("        groupVisible = true;\n")
+                .append("      } else {\n")
+                .append("        link.style.display = 'none';\n")
+                .append("      }\n")
+                .append("    });\n")
+                .append("    if (groupVisible || group.querySelector('a').textContent.toLowerCase().includes(input)) {\n")
+                .append("       group.style.display = '';\n")
+                .append("    } else {\n")
+                .append("       group.style.display = 'none';\n")
+                .append("    }\n")
+                .append("  });\n")
+                .append("}\n")
+                .append("</script>\n")
+                .append("</body>\n</html>\n");
         Files.writeString(output.toPath(), sb.toString(), StandardCharsets.UTF_8);
     }
 
@@ -78,14 +123,15 @@ public class HtmlExporter implements ApiExporter {
         }
 
         for (WebApiInfo api : group.getApis()) {
-            writeEndpoint(sb, api);
+            writeEndpoint(sb, api, group.getName());
         }
         sb.append("</section>\n");
     }
 
-    private void writeEndpoint(StringBuilder sb, WebApiInfo api) {
+    private void writeEndpoint(StringBuilder sb, WebApiInfo api, String groupName) {
         String methodClass = "method-" + api.getMethod().toLowerCase();
-        sb.append("<div class=\"endpoint\">\n")
+        String apiAnchor = anchorId(groupName + "-" + api.getMethod() + "-" + api.getPath());
+        sb.append("<div class=\"endpoint\" id=\"").append(apiAnchor).append("\">\n")
                 .append("  <div class=\"endpoint-header\">\n")
                 .append("    <span class=\"method ").append(methodClass).append("\">").append(esc(api.getMethod()))
                 .append("</span>\n")
@@ -215,21 +261,39 @@ public class HtmlExporter implements ApiExporter {
     private static final String CSS = """
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                   line-height: 1.6; max-width: 1200px; margin: 0 auto; padding: 20px; color: #333; background: #f8f9fa; }
-            .header { text-align: center; padding: 30px 0; border-bottom: 2px solid #e0e0e0; margin-bottom: 30px; }
-            .header h1 { font-size: 2em; color: #1a1a2e; }
+                   line-height: 1.6; color: #333; background: #f8f9fa; }
+
+            /* Layout */
+            .header { text-align: center; padding: 20px 0; background: #fff; border-bottom: 1px solid #e0e0e0; position: sticky; top: 0; z-index: 100; }
+            .header h1 { font-size: 1.8em; color: #1a1a2e; }
             .version { color: #666; font-size: 0.9em; }
-            .toc { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-            .toc h2 { font-size: 1.2em; margin-bottom: 10px; }
-            .toc ul { list-style: none; padding-left: 10px; }
-            .toc li { margin: 5px 0; }
-            .toc a { color: #0366d6; text-decoration: none; }
-            .toc a:hover { text-decoration: underline; }
-            .group { background: #fff; padding: 25px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-            .group h2 { font-size: 1.5em; color: #1a1a2e; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
-            .base-path { color: #666; font-size: 0.9em; margin-bottom: 15px; }
-            .endpoint { border: 1px solid #e0e0e0; border-radius: 6px; margin: 15px 0; overflow: hidden; }
-            .endpoint-header { display: flex; align-items: center; gap: 12px; padding: 12px 15px; background: #f5f5f5; }
+            .container { display: flex; max-width: 1400px; margin: 0 auto; min-height: calc(100vh - 80px); }
+
+            /* Sidebar Navigation */
+            .sidebar { width: 280px; flex-shrink: 0; background: #fff; padding: 20px; border-right: 1px solid #e0e0e0;
+                       height: calc(100vh - 80px); position: sticky; top: 80px; overflow-y: auto; }
+            .sidebar h2 { font-size: 1.2em; margin-bottom: 10px; color: #444; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #eee; padding-bottom: 8px;}
+            .search-input { width: 100%; padding: 8px 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em; outline: none; transition: border-color 0.2s;}
+            .search-input:focus { border-color: #0366d6; box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1); }
+            .sidebar ul { list-style: none; }
+            .sidebar li { margin: 8px 0; }
+            .sidebar a { color: #0366d6; text-decoration: none; display: block; padding: 6px 10px; border-radius: 4px; transition: background 0.2s; font-weight: 500;}
+            .sidebar a:hover { text-decoration: none; background: #f0f4f8; }
+            .sidebar .api-list { padding-left: 12px; margin-top: 4px; border-left: 2px solid #eee; margin-left: 10px;}
+            .sidebar .api-list li { margin: 4px 0; }
+            .sidebar .api-list a { font-size: 0.85em; color: #555; padding: 4px 8px; font-weight: normal; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+            .sidebar .api-list a:hover { color: #0366d6; background: #f0f4f8; }
+            .menu-method { font-size: 0.8em; font-weight: 600; padding: 2px 5px; border-radius: 3px; color: #fff; margin-right: 5px; display: inline-block; min-width: 35px; text-align: center;}
+            .sidebar a:hover { text-decoration: none; background: #f0f4f8; }
+
+            /* Main Content */
+            .content { flex-grow: 1; padding: 30px 40px; background: #f8f9fa; min-width: 0; }
+
+            .group { background: #fff; padding: 25px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+            .group h2 { font-size: 1.6em; color: #1a1a2e; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+            .base-path { color: #555; font-size: 0.95em; margin-bottom: 15px; background: #f5f5f5; padding: 8px 12px; border-radius: 4px; display: inline-block;}
+            .endpoint { border: 1px solid #e8e8e8; border-radius: 6px; margin: 20px 0; overflow: hidden; background: #fff;}
+            .endpoint-header { display: flex; align-items: center; gap: 12px; padding: 12px 15px; background: #fafafa; border-bottom: 1px solid #eee;}
             .method { font-weight: 700; font-size: 0.85em; padding: 4px 10px; border-radius: 4px; color: #fff; text-transform: uppercase; }
             .method-get { background: #61affe; }
             .method-post { background: #49cc90; }
@@ -238,22 +302,26 @@ public class HtmlExporter implements ApiExporter {
             .method-patch { background: #50e3c2; }
             .method-head { background: #9012fe; }
             .method-options { background: #0d5aa7; }
-            .path { font-family: monospace; font-size: 1em; color: #333; }
-            .deprecated { background: #ffebcc; color: #b35900; padding: 2px 8px; border-radius: 3px; font-size: 0.8em; font-weight: 600; }
-            .summary { padding: 10px 15px; color: #555; }
+            .path { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 1em; color: #24292e; word-break: break-all;}
+            .deprecated { background: #fff8c5; color: #9a6700; padding: 2px 8px; border-radius: 3px; font-size: 0.8em; font-weight: 600; border: 1px solid #f6e890;}
+            .summary { padding: 15px; color: #444; background: #fff; }
             .return { padding: 5px 15px; color: #666; font-size: 0.9em; }
             .params { width: 100%; border-collapse: collapse; margin: 0; }
-            .params th { background: #f0f0f0; text-align: left; padding: 8px 12px; font-size: 0.85em; color: #555; border-top: 1px solid #e0e0e0; }
-            .params td { padding: 8px 12px; border-top: 1px solid #f0f0f0; font-size: 0.9em; }
-            .params tr:hover { background: #f9f9f9; }
-            .fields-section { padding: 10px 15px; }
-            .fields-section h4 { font-size: 0.95em; color: #444; margin-bottom: 8px; }
-            .field-type { font-size: 0.85em; color: #666; margin: 8px 0 4px 0; }
-            .fields { width: 100%; border-collapse: collapse; margin: 4px 0 8px 15px; border: 1px solid #e8e8e8; border-radius: 4px; }
-            .fields th { background: #f5f5f5; text-align: left; padding: 6px 10px; font-size: 0.8em; color: #666; }
-            .fields td { padding: 6px 10px; border-top: 1px solid #f0f0f0; font-size: 0.85em; }
-            .fields tr:hover { background: #fafafa; }
-            code { background: #f0f0f0; padding: 2px 5px; border-radius: 3px; font-size: 0.9em; }
-            .desc { color: #555; margin: 5px 0 15px 0; }
+            .params th { background: #f6f8fa; text-align: left; padding: 10px 15px; font-size: 0.85em; color: #24292e; border-top: 1px solid #e1e4e8; border-bottom: 1px solid #e1e4e8;}
+            .params td { padding: 10px 15px; border-bottom: 1px solid #e1e4e8; font-size: 0.9em; color: #24292e;}
+            .params tr:last-child td { border-bottom: none; }
+            .params tr:hover { background: #fafbfc; }
+            .fields-section { padding: 15px; border-top: 1px solid #eee;}
+            .fields-section h4 { font-size: 1em; color: #24292e; margin-bottom: 12px; }
+            .field-type { font-size: 0.85em; color: #586069; margin: 8px 0 4px 0; }
+            .fields { width: 100%; border-collapse: collapse; margin: 5px 0 10px 15px; border: 1px solid #e1e4e8; border-radius: 4px; overflow: hidden;}
+            .fields th { background: #f6f8fa; text-align: left; padding: 8px 12px; font-size: 0.8em; color: #586069; border-bottom: 1px solid #e1e4e8;}
+            .fields td { padding: 8px 12px; border-bottom: 1px solid #e1e4e8; font-size: 0.85em; color: #24292e;}
+            .fields tr:last-child td { border-bottom: none; }
+            .fields tr:hover { background: #fafbfc; }
+            code { background: #f6f8fa; padding: 3px 6px; border-radius: 3px; font-size: 0.9em; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; color: #24292e;}
+            pre { background: #f6f8fa; padding: 15px; border-radius: 6px; overflow-x: auto; border: 1px solid #e1e4e8;}
+            pre code { background: none; padding: 0; border: none; font-size: 0.9em; color: #24292e;}
+            .desc { color: #586069; margin: 5px 0 15px 0; }
             """;
 }
