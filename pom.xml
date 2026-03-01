@@ -17,7 +17,7 @@
 		<junit.version>5.10.0</junit.version>
 		<lombok.version>1.18.36</lombok.version>
 		<javafx.version>17.0.6</javafx.version>
-		<java.version>17</java.version>
+		<java.version>21</java.version>
 	</properties>
 
 	<dependencies>
