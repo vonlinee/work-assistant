@@ -15,7 +15,20 @@ import org.jdesktop.swingx.JXTreeTable;
 import javax.swing.*;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import java.io.File;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -32,6 +45,8 @@ public class MyBatisToolPane implements ToolProvider {
 	private MyBatisTreeTableModel treeTableModel;
 	private ParamTable paramTable;
 	private RSyntaxTextArea sqlTextArea;
+	private RSyntaxTextArea parsedContentArea;
+	private JTabbedPane bottomTabbedPane;
 	private JButton renderButton;
 
 	private MyBatisScanner scanner;
@@ -60,6 +75,11 @@ public class MyBatisToolPane implements ToolProvider {
 		sqlTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
 		sqlTextArea.setCodeFoldingEnabled(true);
 
+		parsedContentArea = new RSyntaxTextArea(20, 60);
+		parsedContentArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+		parsedContentArea.setCodeFoldingEnabled(true);
+		parsedContentArea.setEditable(false);
+
 		renderButton = new JButton("Render SQL");
 	}
 
@@ -87,10 +107,16 @@ public class MyBatisToolPane implements ToolProvider {
 		rightPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 		JPanel sqlPanel = new JPanel(new BorderLayout());
-		sqlPanel.setBorder(BorderFactory.createTitledBorder("Rendered SQL"));
 		sqlPanel.add(new RTextScrollPane(sqlTextArea), BorderLayout.CENTER);
 
-		JSplitPane rightSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, rightPanel, sqlPanel);
+		JPanel xmlPanel = new JPanel(new BorderLayout());
+		xmlPanel.add(new RTextScrollPane(parsedContentArea), BorderLayout.CENTER);
+
+		bottomTabbedPane = new JTabbedPane();
+		bottomTabbedPane.addTab("Parsed Content (XML)", xmlPanel);
+		bottomTabbedPane.addTab("Rendered SQL", sqlPanel);
+
+		JSplitPane rightSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, rightPanel, bottomTabbedPane);
 		rightSplitPane.setResizeWeight(0.5);
 
 		JSplitPane mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPane, rightSplitPane);
@@ -183,11 +209,16 @@ public class MyBatisToolPane implements ToolProvider {
 			if (node instanceof MyBatisNode myNode) {
 				if (myNode.getMappedStatement() != null) {
 					paramTable.setStatement(myNode.getMappedStatement());
+					parsedContentArea.setText(extractStatementXml(myNode.getMappedStatement()));
+					if (bottomTabbedPane != null) {
+						bottomTabbedPane.setSelectedIndex(0);
+					}
 					return;
 				}
 			}
 		}
 		paramTable.setStatement(null);
+		parsedContentArea.setText("");
 	}
 
 	private void renderSql() {
@@ -231,6 +262,54 @@ public class MyBatisToolPane implements ToolProvider {
 					sqlTextArea.setText("Error generating SQL:\n" + ex.getMessage());
 				}
 			}
+		}
+	}
+
+	private String extractStatementXml(MappedStatement ms) {
+		try {
+			String resource = ms.getResource();
+			if (resource == null)
+				return "No resource registered for this mapped statement.";
+
+			// Extract plain file path if registered as 'file [C:\path\to\Mapper.xml]'
+			if (resource.startsWith("file [") && resource.endsWith("]")) {
+				resource = resource.substring(6, resource.length() - 1);
+			}
+
+			File xmlFile = new File(resource);
+			if (!xmlFile.exists() || !xmlFile.isFile())
+				return "Cannot locate XML file: " + resource;
+
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setValidating(false);
+			factory.setNamespaceAware(false);
+			// Disable DTD loading for performance & offline parsing safety
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			Document doc = builder.parse(xmlFile);
+
+			String fullId = ms.getId();
+			String shortId = fullId.substring(fullId.lastIndexOf('.') + 1);
+
+			XPath xPath = XPathFactory.newInstance().newXPath();
+			String expression = "//*[@id='" + shortId + "']";
+			Node node = (Node) xPath.compile(expression).evaluate(doc, XPathConstants.NODE);
+
+			if (node != null) {
+				Transformer transformer = TransformerFactory.newInstance().newTransformer();
+				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+				transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+				transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+
+				StringWriter writer = new StringWriter();
+				transformer.transform(new DOMSource(node), new StreamResult(writer));
+				return writer.toString();
+			} else {
+				return "Could not find node with id='" + shortId + "' in " + xmlFile.getName();
+			}
+		} catch (Exception ex) {
+			return "Error parsing XML for statement: " + ex.getMessage();
 		}
 	}
 
