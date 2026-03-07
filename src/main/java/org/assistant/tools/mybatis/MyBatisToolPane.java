@@ -10,9 +10,10 @@ import org.assistant.util.Messages;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
-import org.jdesktop.swingx.JXTreeTable;
 
 import javax.swing.*;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import javax.xml.parsers.DocumentBuilder;
@@ -66,8 +67,18 @@ public class MyBatisToolPane implements ToolProvider {
 
 		MyBatisNode root = new MyBatisNode("Root", "", "");
 		treeTableModel = new MyBatisTreeTableModel();
-		treeTable = new SwingTreeTable(treeTableModel);
+		treeTable = new StatementTreeTable(treeTableModel);
 		treeTable.setRowHeight(24);
+		treeTable.setShowGrid(true, true);
+
+		// Set column widths and renderer
+		treeTable.getColumnModel().getColumn(0).setPreferredWidth(450);
+		TableColumn typeColumn = treeTable.getColumnModel().getColumn(1);
+		typeColumn.setPreferredWidth(60);
+		typeColumn.setMinWidth(60);
+		typeColumn.setMaxWidth(60);
+		typeColumn.setCellRenderer(new StatementTypeRenderer());
+		treeTable.getColumnModel().getColumn(2).setPreferredWidth(270);
 
 		paramTable = new ParamTable();
 
@@ -344,5 +355,96 @@ public class MyBatisToolPane implements ToolProvider {
 	@Override
 	public JComponent getView() {
 		return borderPane;
+	}
+
+	/**
+	 * Custom cell renderer for coloring the Statement Type column.
+	 */
+	private static class StatementTypeRenderer implements TableCellRenderer {
+		private static final Color COLOR_SELECT = new Color(230, 247, 255);
+		private static final Color BORDER_SELECT = new Color(145, 213, 255);
+		private static final Color TEXT_SELECT = new Color(9, 105, 218);
+
+		private static final Color COLOR_INSERT = new Color(246, 255, 237);
+		private static final Color BORDER_INSERT = new Color(183, 235, 143);
+		private static final Color TEXT_INSERT = new Color(34, 134, 58);
+
+		private static final Color COLOR_UPDATE = new Color(255, 251, 230);
+		private static final Color BORDER_UPDATE = new Color(255, 229, 143);
+		private static final Color TEXT_UPDATE = new Color(212, 107, 8);
+
+		private static final Color COLOR_DELETE = new Color(255, 241, 240);
+		private static final Color BORDER_DELETE = new Color(255, 163, 158);
+		private static final Color TEXT_DELETE = new Color(207, 34, 46);
+
+		private final JPanel panel = new JPanel(new GridBagLayout());
+		private final JLabel label = new JLabel();
+
+		public StatementTypeRenderer() {
+			label.setOpaque(true);
+			label.setFont(label.getFont().deriveFont(Font.BOLD, 11f));
+			panel.add(label);
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value,
+				boolean isSelected, boolean hasFocus, int row, int column) {
+
+			if (isSelected) {
+				panel.setBackground(table.getSelectionBackground());
+				panel.setForeground(table.getSelectionForeground());
+			} else {
+				panel.setBackground(table.getBackground());
+				panel.setForeground(table.getForeground());
+			}
+
+			if (value == null || value.toString().trim().isEmpty()) {
+				label.setText("");
+				label.setOpaque(false);
+				label.setBorder(BorderFactory.createEmptyBorder());
+				return panel;
+			}
+
+			String type = value.toString().toUpperCase();
+			label.setText(type);
+			label.setOpaque(true);
+
+			switch (type) {
+				case "SELECT":
+					label.setBackground(COLOR_SELECT);
+					label.setForeground(TEXT_SELECT);
+					label.setBorder(BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(BORDER_SELECT, 1, true),
+							BorderFactory.createEmptyBorder(2, 6, 2, 6)));
+					break;
+				case "INSERT":
+					label.setBackground(COLOR_INSERT);
+					label.setForeground(TEXT_INSERT);
+					label.setBorder(BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(BORDER_INSERT, 1, true),
+							BorderFactory.createEmptyBorder(2, 6, 2, 6)));
+					break;
+				case "UPDATE":
+					label.setBackground(COLOR_UPDATE);
+					label.setForeground(TEXT_UPDATE);
+					label.setBorder(BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(BORDER_UPDATE, 1, true),
+							BorderFactory.createEmptyBorder(2, 6, 2, 6)));
+					break;
+				case "DELETE":
+					label.setBackground(COLOR_DELETE);
+					label.setForeground(TEXT_DELETE);
+					label.setBorder(BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(BORDER_DELETE, 1, true),
+							BorderFactory.createEmptyBorder(2, 6, 2, 6)));
+					break;
+				default:
+					label.setOpaque(false);
+					label.setForeground(table.getForeground());
+					label.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
+					break;
+			}
+			return panel;
+		}
 	}
 }
