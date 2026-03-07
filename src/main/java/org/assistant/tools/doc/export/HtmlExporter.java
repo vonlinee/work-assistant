@@ -112,11 +112,13 @@ public class HtmlExporter implements ApiExporter {
             .container { display: flex; max-width: 1400px; margin: 0 auto; min-height: calc(100vh - 80px); }
 
             /* Sidebar Navigation */
-            .sidebar { width: 280px; flex-shrink: 0; background: #fff; padding: 20px; border-right: 1px solid #e0e0e0;
-                       height: calc(100vh - 80px); position: sticky; top: 80px; overflow-y: auto; }
+            .sidebar { width: 280px; flex-shrink: 0; background: #fff; border-right: none; display: flex; flex-direction: column;
+                       height: calc(100vh - 80px); position: sticky; top: 80px; overflow: hidden; }
+            .sidebar-header { padding: 20px 20px 5px 20px; flex-shrink: 0; }
             .sidebar h2 { font-size: 1.2em; margin-bottom: 10px; color: #444; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #eee; padding-bottom: 8px;}
-            .search-input { width: 100%; padding: 8px 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em; outline: none; transition: border-color 0.2s;}
+            .search-input { width: 100%; padding: 8px 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em; outline: none; transition: border-color 0.2s;}
             .search-input:focus { border-color: #0366d6; box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1); }
+            #groupList { flex-grow: 1; overflow-y: auto; padding: 0 20px 20px 20px; }
             .sidebar ul { list-style: none; }
             .sidebar li { margin: 8px 0; }
             .sidebar a { color: #0366d6; text-decoration: none; display: block; padding: 6px 10px; border-radius: 4px; transition: background 0.2s; font-weight: 500;}
@@ -127,6 +129,10 @@ public class HtmlExporter implements ApiExporter {
             .sidebar .api-list a:hover { color: #0366d6; background: #f0f4f8; }
             .menu-method { font-size: 0.8em; font-weight: 600; padding: 2px 5px; border-radius: 3px; color: #fff; margin-right: 5px; display: inline-block; min-width: 35px; text-align: center;}
             .sidebar a:hover { text-decoration: none; background: #f0f4f8; }
+
+            /* Resizer */
+            .resizer { width: 4px; background-color: #e0e0e0; cursor: col-resize; flex-shrink: 0; transition: background-color 0.2s; position: sticky; top: 80px; height: calc(100vh - 80px); }
+            .resizer:hover, .resizer.dragging { background-color: #0366d6; }
 
             /* Main Content */
             .content { flex-grow: 1; padding: 30px 40px; background: #f8f9fa; min-width: 0; }

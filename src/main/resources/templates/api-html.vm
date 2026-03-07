@@ -20,8 +20,10 @@ $css
 </div>
 <div class="container">
   <nav class="sidebar">
-    <h2>$msg.tableOfContents()</h2>
-    <input type="text" id="apiSearch" placeholder="Search APIs..." onkeyup="filterApis()" class="search-input">
+    <div class="sidebar-header">
+      <h2>$msg.tableOfContents()</h2>
+      <input type="text" id="apiSearch" placeholder="Search APIs..." onkeyup="filterApis()" class="search-input">
+    </div>
     <ul id="groupList">
 #foreach($group in $project.groups)
       <li>
@@ -36,6 +38,7 @@ $css
 #end
     </ul>
   </nav>
+  <div class="resizer" id="dragMe"></div>
   <main class="content">
 #foreach($group in $project.groups)
     <section class="group" id="$tools.anchor($group.name)">
@@ -147,6 +150,49 @@ function filterApis() {
     }
   });
 }
+
+// Sidebar Resizing Logic
+document.addEventListener('DOMContentLoaded', function () {
+    const resizer = document.getElementById('dragMe');
+    const sidebar = document.querySelector('.sidebar');
+    const container = document.querySelector('.container');
+
+    let isHandlerDragging = false;
+    let startX, startWidth;
+
+    resizer.addEventListener('mousedown', function (e) {
+        isHandlerDragging = true;
+        startX = e.clientX;
+        startWidth = sidebar.getBoundingClientRect().width;
+        
+        // Disable text selection and transition during drag operation
+        container.style.userSelect = 'none';
+        resizer.classList.add('dragging');
+        
+        document.addEventListener('mousemove', handleDrag);
+        document.addEventListener('mouseup', stopDrag);
+    });
+
+    function handleDrag(e) {
+        if (!isHandlerDragging) return;
+        const width = startWidth + (e.clientX - startX);
+        const minWidth = 150;
+        const maxWidth = 800; // sensible maximum
+        
+        if (width >= minWidth && width <= Math.min(maxWidth, window.innerWidth * 0.8)) {
+            sidebar.style.width = width + 'px';
+        }
+    }
+
+    function stopDrag() {
+        if (!isHandlerDragging) return;
+        isHandlerDragging = false;
+        container.style.userSelect = '';
+        resizer.classList.remove('dragging');
+        document.removeEventListener('mousemove', handleDrag);
+        document.removeEventListener('mouseup', stopDrag);
+    }
+});
 </script>
 </body>
 </html>
