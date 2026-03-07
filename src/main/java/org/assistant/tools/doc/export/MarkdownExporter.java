@@ -65,13 +65,15 @@ public class MarkdownExporter implements ApiExporter {
             sb.append(indent).append("> `").append(typeName).append("` ").append(msg.fields()).append(":\n");
             sb.append(indent).append(">\n");
             sb.append(indent).append("> | ").append(msg.headerField()).append(" | ").append(msg.headerType())
-                    .append(" | ").append(msg.headerRequired()).append(" | ").append(msg.headerDefault())
+                    .append(" | ").append(msg.headerRequired()).append(" | ").append(msg.headerExample()).append(" | ")
+                    .append(msg.headerDefault())
                     .append(" | ").append(msg.headerDescription()).append(" |\n");
-            sb.append(indent).append("> |-------|------|----------|---------|-------------|\n");
+            sb.append(indent).append("> |-------|------|----------|---------|---------|-------------|\n");
             for (FieldInfo f : fields) {
                 sb.append(indent).append("> | ").append(f.getName() != null ? f.getName() : "")
                         .append(" | `").append(f.getFrontendType() != null ? f.getFrontendType() : "").append("`")
                         .append(" | ").append(f.isRequired() ? "\u2713" : "")
+                        .append(" | ").append(f.getExample() != null ? f.getExample() : "")
                         .append(" | ").append(f.getDefaultValue() != null ? f.getDefaultValue() : "")
                         .append(" | ").append(f.getDescription() != null ? f.getDescription() : "")
                         .append(" |\n");

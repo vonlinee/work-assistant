@@ -41,6 +41,7 @@ public class ExcelExporter implements ApiExporter {
         headers.add(List.of(msg.headerLocation()));
         headers.add(List.of(msg.headerType()));
         headers.add(List.of(msg.headerRequired()));
+        headers.add(List.of(msg.headerExample()));
         headers.add(List.of(msg.headerDefault()));
         headers.add(List.of(msg.headerDescription()));
 
@@ -70,6 +71,7 @@ public class ExcelExporter implements ApiExporter {
                     headerRow.add(api.getFrontendReturnType() != null && !"object".equals(api.getFrontendReturnType())
                             && !"void".equalsIgnoreCase(api.getReturnType()) ? api.getFrontendReturnType() : "");
                     headerRow.add(api.isDeprecated() ? msg.deprecated() : "");
+                    headerRow.add(""); // Example
                     headerRow.add(""); // Default
                     headerRow.add(api.getDescription() != null ? api.getDescription() : "");
                     rows.add(headerRow);
@@ -96,12 +98,13 @@ public class ExcelExporter implements ApiExporter {
                         retRow.add("");
                         retRow.add("");
                         retRow.add("");
+                        retRow.add("");
                         rows.add(retRow);
                         addFieldRows(rows, api.getReturnTypeFields(), 1);
                     }
 
                     // Blank separator row between endpoints
-                    rows.add(List.of("", "", "", "", "", "", "", "", ""));
+                    rows.add(List.of("", "", "", "", "", "", "", "", "", ""));
                 }
 
                 var sheet = EasyExcel.writerSheet(sheetNo, group.getName()).build();
@@ -122,6 +125,7 @@ public class ExcelExporter implements ApiExporter {
         row.add(param.getIn() != null ? param.getIn().name().toLowerCase() : "");
         row.add(param.getFrontendDataType());
         row.add(param.isRequired() ? "✓" : "");
+        row.add(param.getExample() != null ? param.getExample() : "");
         row.add(param.getDefaultValue() != null ? param.getDefaultValue() : "");
         row.add(param.getDescription() != null ? param.getDescription() : "");
         return row;
@@ -138,6 +142,7 @@ public class ExcelExporter implements ApiExporter {
             row.add(""); // Location (fields don't have a location)
             row.add(field.getFrontendType());
             row.add(field.isRequired() ? "✓" : "");
+            row.add(field.getExample() != null ? field.getExample() : "");
             row.add(field.getDefaultValue() != null ? field.getDefaultValue() : "");
             row.add(field.getDescription() != null ? field.getDescription() : "");
             rows.add(row);

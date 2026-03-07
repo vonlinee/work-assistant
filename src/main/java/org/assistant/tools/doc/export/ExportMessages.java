@@ -104,6 +104,10 @@ public final class ExportMessages {
         return get("export.header.description");
     }
 
+    public String headerExample() {
+        return get("export.header.example");
+    }
+
     public String headerField() {
         return get("export.header.field");
     }

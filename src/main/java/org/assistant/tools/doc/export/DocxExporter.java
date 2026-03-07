@@ -349,6 +349,7 @@ public class DocxExporter implements ApiExporter {
                     param.getIn() != null ? param.getIn().name().toLowerCase() : "",
                     param.getFrontendDataType(),
                     param.isRequired() ? msg.yes() : msg.no(),
+                    param.getExample() != null ? param.getExample() : "",
                     param.getDefaultValue() != null ? param.getDefaultValue() : "",
                     param.getDescription() != null ? param.getDescription() : ""
             });
@@ -359,7 +360,7 @@ public class DocxExporter implements ApiExporter {
 
         writeTableFromRows(document,
                 new String[] { msg.headerName(), msg.headerLocation(), msg.headerType(),
-                        msg.headerRequired(), msg.headerDefault(), msg.headerDescription() },
+                        msg.headerRequired(), msg.headerExample(), msg.headerDefault(), msg.headerDescription() },
                 allRows, 11);
     }
 
@@ -374,7 +375,7 @@ public class DocxExporter implements ApiExporter {
 
         writeTableFromRows(document,
                 new String[] { msg.headerField(), msg.headerLocation(), msg.headerType(),
-                        msg.headerRequired(), msg.headerDefault(), msg.headerDescription() },
+                        msg.headerRequired(), msg.headerExample(), msg.headerDefault(), msg.headerDescription() },
                 fieldRows, 9);
     }
 
@@ -387,6 +388,7 @@ public class DocxExporter implements ApiExporter {
                     "",
                     field.getFrontendType(),
                     field.isRequired() ? msg.yes() : msg.no(),
+                    field.getExample() != null ? field.getExample() : "",
                     field.getDefaultValue() != null ? field.getDefaultValue() : "",
                     field.getDescription() != null ? field.getDescription() : ""
             });
@@ -412,13 +414,14 @@ public class DocxExporter implements ApiExporter {
                     param.getIn() != null ? param.getIn().name().toLowerCase() : "",
                     param.getFrontendDataType(),
                     param.isRequired() ? msg.yes() : msg.no(),
+                    param.getExample() != null ? param.getExample() : "",
                     param.getDefaultValue() != null ? param.getDefaultValue() : "",
                     param.getDescription() != null ? param.getDescription() : ""
             });
         }
         writeTableFromRows(document,
                 new String[] { msg.headerName(), msg.headerLocation(), msg.headerType(),
-                        msg.headerRequired(), msg.headerDefault(), msg.headerDescription() },
+                        msg.headerRequired(), msg.headerExample(), msg.headerDefault(), msg.headerDescription() },
                 paramRows, 11);
 
         // Separate field detail tables for complex param types
@@ -443,6 +446,7 @@ public class DocxExporter implements ApiExporter {
                     field.getName(),
                     field.getFrontendType(),
                     field.isRequired() ? msg.yes() : msg.no(),
+                    field.getExample() != null ? field.getExample() : "",
                     field.getDefaultValue() != null ? field.getDefaultValue() : "",
                     field.getDescription() != null ? field.getDescription() : ""
             });
@@ -450,7 +454,7 @@ public class DocxExporter implements ApiExporter {
 
         writeTableFromRows(document,
                 new String[] { msg.headerField(), msg.headerType(), msg.headerRequired(),
-                        msg.headerDefault(), msg.headerDescription() },
+                        msg.headerExample(), msg.headerDefault(), msg.headerDescription() },
                 fieldRows, 9);
 
         // Recursively write nested field tables

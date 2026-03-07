@@ -54,10 +54,10 @@ $api.summary
 #if(!$api.params.isEmpty())
 **$msg.parameters():**
 
-| $msg.headerName() | $msg.headerIn() | $msg.headerType() | $msg.headerRequired() | $msg.headerDefault() | $msg.headerDescription() |
-|------|-----|------|----------|---------|-------------|
+| $msg.headerName() | $msg.headerIn() | $msg.headerType() | $msg.headerRequired() | $msg.headerExample() | $msg.headerDefault() | $msg.headerDescription() |
+|------|-----|------|----------|---------|---------|-------------|
 #foreach($p in $api.params)
-| #if($p.name)$p.name#end | #if($p.in)$p.in.name().toLowerCase()#end | `#if($p.frontendDataType)$p.frontendDataType#end` | #if($p.required)✓#end | #if($p.defaultValue)$p.defaultValue#end | #if($p.description)$p.description#end |
+| #if($p.name)$p.name#end | #if($p.in)$p.in.name().toLowerCase()#end | `#if($p.frontendDataType)$p.frontendDataType#end` | #if($p.required)✓#end | #if($p.example)$p.example#end | #if($p.defaultValue)$p.defaultValue#end | #if($p.description)$p.description#end |
 #end
 
 #foreach($p in $api.params)
