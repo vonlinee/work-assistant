@@ -143,6 +143,26 @@ public class MyBatisToolPane implements ToolProvider {
 			}
 		});
 
+		treeTable.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					int viewRow = treeTable.rowAtPoint(e.getPoint());
+					if (viewRow >= 0) {
+						int modelRow = treeTable.convertRowIndexToModel(viewRow);
+						TreePath pathForRow = treeTable.getPathForRow(modelRow);
+						if (pathForRow != null) {
+							if (treeTable.isExpanded(pathForRow)) {
+								treeTable.collapsePath(pathForRow);
+							} else {
+								treeTable.expandPath(pathForRow);
+							}
+						}
+					}
+				}
+			}
+		});
+
 		renderButton.addActionListener(e -> renderSql());
 	}
 
