@@ -258,6 +258,9 @@ public class MyBatisToolPane implements ToolProvider {
 						}
 					}
 					sqlTextArea.setText(sql);
+					if (bottomTabbedPane != null) {
+						bottomTabbedPane.setSelectedIndex(1);
+					}
 				} catch (Exception ex) {
 					sqlTextArea.setText("Error generating SQL:\n" + ex.getMessage());
 				}
