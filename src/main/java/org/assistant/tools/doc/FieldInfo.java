@@ -108,4 +108,11 @@ public class FieldInfo {
     public boolean hasChildren() {
         return children != null && !children.isEmpty();
     }
+
+    /**
+     * Gets the frontend data type for this field.
+     */
+    public String getFrontendType() {
+        return TypeConverter.toFrontendType(this.type);
+    }
 }

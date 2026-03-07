@@ -81,7 +81,7 @@ public class HtmlExporter implements ApiExporter {
             for (FieldInfo f : fields) {
                 sb.append(indent).append("<tr>")
                         .append("<td>").append(esc(f.getName())).append("</td>")
-                        .append("<td><code>").append(esc(f.getType())).append("</code></td>")
+                        .append("<td><code>").append(esc(f.getFrontendType())).append("</code></td>")
                         .append("<td>").append(f.isRequired() ? "\u2713" : "").append("</td>")
                         .append("<td>").append(f.getDefaultValue() != null ? esc(f.getDefaultValue()) : "")
                         .append("</td>")
@@ -90,7 +90,7 @@ public class HtmlExporter implements ApiExporter {
                         .append("</tr>\n");
                 if (f.hasChildren() && depth < 2) {
                     sb.append(indent).append("<tr><td colspan=\"5\">\n");
-                    writeFieldTableRecursive(sb, f.getChildren(), f.getType(), depth + 1, msg);
+                    writeFieldTableRecursive(sb, f.getChildren(), f.getFrontendType(), depth + 1, msg);
                     sb.append(indent).append("</td></tr>\n");
                 }
             }

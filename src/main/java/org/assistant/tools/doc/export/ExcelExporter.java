@@ -67,7 +67,8 @@ public class ExcelExporter implements ApiExporter {
                     headerRow.add(api.getSummary() != null ? api.getSummary() : "");
                     headerRow.add(""); // Param/Field
                     headerRow.add(""); // Location
-                    headerRow.add(api.getReturnType() != null ? api.getReturnType() : "");
+                    headerRow.add(api.getFrontendReturnType() != null && !"object".equals(api.getFrontendReturnType())
+                            && !"void".equalsIgnoreCase(api.getReturnType()) ? api.getFrontendReturnType() : "");
                     headerRow.add(api.isDeprecated() ? msg.deprecated() : "");
                     headerRow.add(""); // Default
                     headerRow.add(api.getDescription() != null ? api.getDescription() : "");
@@ -119,7 +120,7 @@ public class ExcelExporter implements ApiExporter {
         row.add(""); // Summary
         row.add("  " + param.getName());
         row.add(param.getIn() != null ? param.getIn().name().toLowerCase() : "");
-        row.add(param.getDataType());
+        row.add(param.getFrontendDataType());
         row.add(param.isRequired() ? "✓" : "");
         row.add(param.getDefaultValue() != null ? param.getDefaultValue() : "");
         row.add(param.getDescription() != null ? param.getDescription() : "");
@@ -135,7 +136,7 @@ public class ExcelExporter implements ApiExporter {
             row.add(""); // Summary
             row.add(indent + "▪ " + field.getName());
             row.add(""); // Location (fields don't have a location)
-            row.add(field.getType());
+            row.add(field.getFrontendType());
             row.add(field.isRequired() ? "✓" : "");
             row.add(field.getDefaultValue() != null ? field.getDefaultValue() : "");
             row.add(field.getDescription() != null ? field.getDescription() : "");

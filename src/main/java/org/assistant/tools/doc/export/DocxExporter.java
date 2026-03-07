@@ -221,10 +221,11 @@ public class DocxExporter implements ApiExporter {
         }
 
         // Metadata
-        if (api.getReturnType() != null) {
+        if (api.getFrontendReturnType() != null && !"object".equals(api.getFrontendReturnType())
+                && !"void".equalsIgnoreCase(api.getReturnType())) {
             XWPFParagraph retPara = document.createParagraph();
             XWPFRun retRun = retPara.createRun();
-            retRun.setText(msg.returnType() + ": " + api.getReturnType());
+            retRun.setText(msg.returnType() + ": " + api.getFrontendReturnType());
             retRun.setItalic(true);
         }
 
@@ -244,7 +245,7 @@ public class DocxExporter implements ApiExporter {
                 writeReturnFieldsInline(document, api);
             } else {
                 writeFieldTableSeparate(document, api.getReturnTypeFields(),
-                        msg.responseFields() + ": " + api.getReturnType());
+                        msg.responseFields() + ": " + api.getFrontendReturnType());
             }
         }
 
@@ -306,7 +307,8 @@ public class DocxExporter implements ApiExporter {
         }
 
         if (api.getReturnTypeFields() != null && !api.getReturnTypeFields().isEmpty()) {
-            String mockResp = MockDataGenerator.generateMockResponse(api.getReturnTypeFields(), api.getReturnType());
+            String mockResp = MockDataGenerator.generateMockResponse(api.getReturnTypeFields(),
+                    api.getFrontendReturnType());
             if (!"{}".equals(mockResp)) {
                 XWPFParagraph respTitle = document.createParagraph();
                 XWPFRun respRun = respTitle.createRun();
@@ -345,7 +347,7 @@ public class DocxExporter implements ApiExporter {
             allRows.add(new String[] {
                     param.getName(),
                     param.getIn() != null ? param.getIn().name().toLowerCase() : "",
-                    param.getDataType(),
+                    param.getFrontendDataType(),
                     param.isRequired() ? msg.yes() : msg.no(),
                     param.getDefaultValue() != null ? param.getDefaultValue() : "",
                     param.getDescription() != null ? param.getDescription() : ""
@@ -364,7 +366,7 @@ public class DocxExporter implements ApiExporter {
     private void writeReturnFieldsInline(XWPFDocument document, WebApiInfo api) {
         XWPFParagraph retTitle = document.createParagraph();
         XWPFRun retRun = retTitle.createRun();
-        retRun.setText(msg.responseFields() + " (" + api.getReturnType() + "):");
+        retRun.setText(msg.responseFields() + " (" + api.getFrontendReturnType() + "):");
         retRun.setBold(true);
 
         List<String[]> fieldRows = new ArrayList<>();
@@ -383,7 +385,7 @@ public class DocxExporter implements ApiExporter {
             rows.add(new String[] {
                     indent + prefix + field.getName(),
                     "",
-                    field.getType(),
+                    field.getFrontendType(),
                     field.isRequired() ? msg.yes() : msg.no(),
                     field.getDefaultValue() != null ? field.getDefaultValue() : "",
                     field.getDescription() != null ? field.getDescription() : ""
@@ -408,7 +410,7 @@ public class DocxExporter implements ApiExporter {
             paramRows.add(new String[] {
                     param.getName(),
                     param.getIn() != null ? param.getIn().name().toLowerCase() : "",
-                    param.getDataType(),
+                    param.getFrontendDataType(),
                     param.isRequired() ? msg.yes() : msg.no(),
                     param.getDefaultValue() != null ? param.getDefaultValue() : "",
                     param.getDescription() != null ? param.getDescription() : ""
@@ -422,7 +424,7 @@ public class DocxExporter implements ApiExporter {
         // Separate field detail tables for complex param types
         for (ApiParam param : params) {
             if (param.hasFields()) {
-                writeFieldTableSeparate(document, param.getFields(), param.getDataType());
+                writeFieldTableSeparate(document, param.getFields(), param.getFrontendDataType());
             }
         }
     }
@@ -439,7 +441,7 @@ public class DocxExporter implements ApiExporter {
         for (FieldInfo field : fields) {
             fieldRows.add(new String[] {
                     field.getName(),
-                    field.getType(),
+                    field.getFrontendType(),
                     field.isRequired() ? msg.yes() : msg.no(),
                     field.getDefaultValue() != null ? field.getDefaultValue() : "",
                     field.getDescription() != null ? field.getDescription() : ""
@@ -454,7 +456,7 @@ public class DocxExporter implements ApiExporter {
         // Recursively write nested field tables
         for (FieldInfo field : fields) {
             if (field.hasChildren()) {
-                writeFieldTableSeparate(document, field.getChildren(), field.getType());
+                writeFieldTableSeparate(document, field.getChildren(), field.getFrontendType());
             }
         }
     }

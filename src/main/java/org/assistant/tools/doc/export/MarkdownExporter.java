@@ -70,7 +70,7 @@ public class MarkdownExporter implements ApiExporter {
             sb.append(indent).append("> |-------|------|----------|---------|-------------|\n");
             for (FieldInfo f : fields) {
                 sb.append(indent).append("> | ").append(f.getName() != null ? f.getName() : "")
-                        .append(" | `").append(f.getType() != null ? f.getType() : "").append("`")
+                        .append(" | `").append(f.getFrontendType() != null ? f.getFrontendType() : "").append("`")
                         .append(" | ").append(f.isRequired() ? "\u2713" : "")
                         .append(" | ").append(f.getDefaultValue() != null ? f.getDefaultValue() : "")
                         .append(" | ").append(f.getDescription() != null ? f.getDescription() : "")
@@ -79,7 +79,7 @@ public class MarkdownExporter implements ApiExporter {
             sb.append("\n");
             for (FieldInfo f : fields) {
                 if (f.hasChildren() && depth < 2) {
-                    writeFieldTableRecursive(sb, f.getChildren(), f.getType(), depth + 1, msg);
+                    writeFieldTableRecursive(sb, f.getChildren(), f.getFrontendType(), depth + 1, msg);
                 }
             }
         }

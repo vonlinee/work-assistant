@@ -61,7 +61,7 @@ $css
         <p class="summary">$tools.esc($api.summary)</p>
 #end
 #if($api.returnType)
-        <p class="return">$msg.returnType(): <code>$tools.esc($api.returnType)</code></p>
+        <p class="return">$msg.returnType(): <code>$tools.esc($api.frontendReturnType)</code></p>
 #end
 #if(!$api.params.isEmpty())
         <table class="params">
@@ -70,14 +70,14 @@ $css
           <tr>
             <td>$tools.esc($p.name)</td>
             <td>#if($p.in)$p.in.name().toLowerCase()#end</td>
-            <td><code>$tools.esc($p.dataType)</code></td>
+            <td><code>$tools.esc($p.frontendDataType)</code></td>
             <td>#if($p.required)✓#end</td>
             <td>#if($p.defaultValue)$tools.esc($p.defaultValue)#end</td>
             <td>#if($p.description)$tools.esc($p.description)#end</td>
           </tr>
 #if($p.hasFields())
           <tr><td colspan="6">
-            $tools.writeFieldTable($p.fields, $p.dataType, 0, $msg)
+            $tools.writeFieldTable($p.fields, $p.frontendDataType, 0, $msg)
           </td></tr>
 #end
 #end
@@ -86,7 +86,7 @@ $css
 #if($api.returnTypeFields && !$api.returnTypeFields.isEmpty())
         <div class="fields-section">
           <h4>$msg.responseFields()</h4>
-          $tools.writeFieldTable($api.returnTypeFields, $api.returnType, 0, $msg)
+          $tools.writeFieldTable($api.returnTypeFields, $api.frontendReturnType, 0, $msg)
         </div>
 #end
 #if(!$api.params.isEmpty() || $api.path)
@@ -109,7 +109,7 @@ $css
         </div>
 #end
 #if($api.returnTypeFields && !$api.returnTypeFields.isEmpty())
-#set($mockResp = $mock.generateMockResponse($api.returnTypeFields, $api.returnType))
+#set($mockResp = $mock.generateMockResponse($api.returnTypeFields, $api.frontendReturnType))
 #if($mockResp != "{}")
         <div class="fields-section">
           <h4>Sample Response</h4>

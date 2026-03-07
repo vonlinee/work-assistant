@@ -40,7 +40,7 @@ $api.summary
 
 #end
 #if($api.returnType)
-**$msg.returnType():** `$api.returnType`
+**$msg.returnType():** `$api.frontendReturnType`
 
 #end
 #if(!$api.consumes.isEmpty())
@@ -57,19 +57,19 @@ $api.summary
 | $msg.headerName() | $msg.headerIn() | $msg.headerType() | $msg.headerRequired() | $msg.headerDefault() | $msg.headerDescription() |
 |------|-----|------|----------|---------|-------------|
 #foreach($p in $api.params)
-| #if($p.name)$p.name#end | #if($p.in)$p.in.name().toLowerCase()#end | `#if($p.dataType)$p.dataType#end` | #if($p.required)✓#end | #if($p.defaultValue)$p.defaultValue#end | #if($p.description)$p.description#end |
+| #if($p.name)$p.name#end | #if($p.in)$p.in.name().toLowerCase()#end | `#if($p.frontendDataType)$p.frontendDataType#end` | #if($p.required)✓#end | #if($p.defaultValue)$p.defaultValue#end | #if($p.description)$p.description#end |
 #end
 
 #foreach($p in $api.params)
 #if($p.hasFields())
-$tools.writeFieldTable($p.fields, $p.dataType, 0, $msg)
+$tools.writeFieldTable($p.fields, $p.frontendDataType, 0, $msg)
 #end
 #end
 #end
 #if($api.returnTypeFields && !$api.returnTypeFields.isEmpty())
 **$msg.responseFields():**
 
-$tools.writeFieldTable($api.returnTypeFields, $api.returnType, 0, $msg)
+$tools.writeFieldTable($api.returnTypeFields, $api.frontendReturnType, 0, $msg)
 #end
 #if(!$api.params.isEmpty() || $api.path)
 **Sample Request:**
@@ -97,7 +97,7 @@ $mockReq
 #end
 #end
 #if($api.returnTypeFields && !$api.returnTypeFields.isEmpty())
-#set($mockResp = $mock.generateMockResponse($api.returnTypeFields, $api.returnType))
+#set($mockResp = $mock.generateMockResponse($api.returnTypeFields, $api.frontendReturnType))
 #if($mockResp != "{}")
 **Sample Response:**
 

@@ -111,4 +111,11 @@ public class ApiParam {
 	public boolean hasFields() {
 		return fields != null && !fields.isEmpty();
 	}
+
+	/**
+	 * Gets the frontend data type for this parameter.
+	 */
+	public String getFrontendDataType() {
+		return TypeConverter.toFrontendType(this.dataType);
+	}
 }

@@ -156,9 +156,6 @@ public class WebApiInfo {
 		this.params.add(param);
 	}
 
-	/**
-	 * Get parameters filtered by location.
-	 */
 	public List<ApiParam> getParamsByLocation(ParamLocation location) {
 		List<ApiParam> result = new ArrayList<>();
 		for (ApiParam param : params) {
@@ -167,5 +164,12 @@ public class WebApiInfo {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Gets the frontend return data type for this API.
+	 */
+	public String getFrontendReturnType() {
+		return TypeConverter.toFrontendType(this.returnType);
 	}
 }

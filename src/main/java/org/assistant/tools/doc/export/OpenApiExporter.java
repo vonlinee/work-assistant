@@ -319,19 +319,9 @@ public class OpenApiExporter implements ApiExporter {
     // --- Type mapping ---
 
     private String javaTypeToOpenApiType(String javaType) {
-        if (javaType == null)
-            return "object";
-        // Strip generics
-        String base = javaType.contains("<") ? javaType.substring(0, javaType.indexOf('<')) : javaType;
-        return switch (base.toLowerCase()) {
-            case "string", "char", "character" -> "string";
-            case "int", "integer", "long", "short", "byte" -> "integer";
-            case "float", "double", "bigdecimal" -> "number";
-            case "boolean" -> "boolean";
-            case "list", "set", "collection", "arraylist", "linkedlist" -> "array";
-            case "void" -> "object";
-            default -> "object";
-        };
+        String frontendType = TypeConverter.toFrontendType(javaType);
+        // Map any OpenApi specific mapping if needed, else return frontendType
+        return frontendType;
     }
 
     /**
