@@ -316,31 +316,27 @@ public class MyBatisToolPane implements ToolProvider {
 			if (ms != null) {
 				try {
 					Map<String, Object> paramMap = new HashMap<>();
-					List<ParamNode> children = paramTable.getRootNode().getChildren();
-					if (children != null) {
-						for (ParamNode pNode : children) {
-							if (pNode != null && pNode.getDataType() != null) {
-								try {
-									ParamDataType enumType = ParamDataType.asMap()
-											.getOrDefault(pNode.getDataType().toUpperCase(), ParamDataType.STRING);
-									Object val = enumType.parseObject(pNode.getValue(), null);
-									paramMap.put(pNode.getKey(), val);
-								} catch (Exception ignored) {
-								}
-							}
+					List<ParamNode> flattenedNodes = new java.util.ArrayList<>();
+					ParamNode rootNode = paramTable.getRootNode();
+					if (rootNode != null) {
+						for (int i = 0; i < rootNode.getChildCount(); i++) {
+							extractParams((ParamNode) rootNode.getChildAt(i), "", paramMap, flattenedNodes);
 						}
 					}
 					org.apache.ibatis.mapping.BoundSql boundSql = ms.getBoundSql(paramMap);
 					String sql = boundSql.getSql();
 					// Format SQL with literal parameters if possible (basic replacement for now)
-					if (children != null) {
-						for (ParamNode pNode : children) {
+					if (!flattenedNodes.isEmpty()) {
+						for (ParamNode pNode : flattenedNodes) {
 							if (pNode != null && pNode.getValue() != null && !pNode.getValue().isEmpty()) {
-								ParamDataType enumType = ParamDataType.asMap()
-										.getOrDefault(pNode.getDataType().toUpperCase(), ParamDataType.STRING);
-								String val = enumType.quote(pNode.getValue());
-								sql = sql.replaceFirst("\\?",
-										val != null ? java.util.regex.Matcher.quoteReplacement(val) : "null");
+								try {
+									ParamDataType enumType = ParamDataType.asMap()
+											.getOrDefault(pNode.getDataType().toUpperCase(), ParamDataType.STRING);
+									String val = enumType.quote(pNode.getValue());
+									sql = sql.replaceFirst("\\?",
+											val != null ? java.util.regex.Matcher.quoteReplacement(val) : "null");
+								} catch (Exception ignored) {
+								}
 							}
 						}
 					}
@@ -351,6 +347,38 @@ public class MyBatisToolPane implements ToolProvider {
 				} catch (Exception ex) {
 					sqlTextArea.setText("Error generating SQL:\n" + ex.getMessage());
 				}
+			}
+		}
+	}
+
+	private void extractParams(ParamNode node, String prefix, Map<String, Object> paramMap,
+			List<ParamNode> flattenedNodes) {
+		String currentPath = prefix;
+		if (currentPath.isEmpty()) {
+			currentPath = node.getKey();
+		} else {
+			if (node.getKey() != null && node.getKey().startsWith("[")) {
+				currentPath = prefix + node.getKey();
+			} else {
+				currentPath = prefix + "." + node.getKey();
+			}
+		}
+
+		// If it's a leaf node (has no children or has a value), capture it
+		if (node.getChildCount() == 0) {
+			flattenedNodes.add(node);
+			try {
+				ParamDataType enumType = ParamDataType.asMap()
+						.getOrDefault(node.getDataType() != null ? node.getDataType().toUpperCase() : "STRING",
+								ParamDataType.STRING);
+				Object val = enumType.parseObject(node.getValue(), null);
+				paramMap.put(currentPath, val);
+			} catch (Exception ignored) {
+			}
+		} else {
+			// Recurse children
+			for (int i = 0; i < node.getChildCount(); i++) {
+				extractParams((ParamNode) node.getChildAt(i), currentPath, paramMap, flattenedNodes);
 			}
 		}
 	}

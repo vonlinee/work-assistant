@@ -7,7 +7,6 @@ import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Setter
 @Getter
@@ -40,8 +39,6 @@ public class ParamNode extends DefaultMutableTreeTableNode {
 	 */
 	@Nullable
 	private ParameterMapping parameterMapping;
-
-	private List<ParamNode> children;
 
 	public ParamNode() {
 		this(null, null, ParamDataType.UNKNOWN.name());

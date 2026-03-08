@@ -45,9 +45,9 @@ public class ParamTable extends BorderPane {
 		List<ParameterMapping> mappings = boundSql.getParameterMappings();
 
 		if (mappings != null) {
+			ParamNode root = getRootNode();
 			for (ParameterMapping pm : mappings) {
-				ParamNode node = new ParamNode();
-				node.setKey(pm.getProperty());
+				ParamNode node = getOrCreatePath(root, pm.getProperty());
 				node.setJdbcType(pm.getJdbcType() != null ? pm.getJdbcType().name() : "");
 				// Guess ParamDataType from javaType
 				ParamDataType dataType = ParamDataType.STRING;
@@ -62,7 +62,6 @@ public class ParamTable extends BorderPane {
 				}
 				node.setDataType(dataType.name());
 				node.setParameterMapping(pm);
-				((ParamNode) treeTableModel.getRoot()).addChild(node);
 			}
 		}
 
@@ -81,18 +80,50 @@ public class ParamTable extends BorderPane {
 
 		ParamNode root = getRootNode();
 		if (root != null) {
-			traverseAndApplyParams(root, params);
+			for (java.util.Map.Entry<String, String> entry : params.entrySet()) {
+				ParamNode leaf = getOrCreatePath(root, entry.getKey());
+				leaf.setValue(entry.getValue());
+			}
 			treeTable.updateUI();
+			treeTable.expandAll();
 		}
 	}
 
-	private void traverseAndApplyParams(ParamNode node, java.util.Map<String, String> params) {
-		if (node.getKey() != null && params.containsKey(node.getKey())) {
-			node.setValue(params.get(node.getKey()));
+	private ParamNode getOrCreatePath(ParamNode parent, String fullKey) {
+		java.util.List<String> parts = new java.util.ArrayList<>();
+		// Extract object properties and array indices separately, e.g. user.friends[0]
+		// -> user, friends, [0]
+		java.util.regex.Matcher m = java.util.regex.Pattern.compile("([^\\[\\]\\.]+)|(\\[[0-9]+\\])").matcher(fullKey);
+		while (m.find()) {
+			parts.add(m.group());
 		}
-		// If nested
-		for (int i = 0; i < node.getChildCount(); i++) {
-			traverseAndApplyParams((ParamNode) node.getChildAt(i), params);
+
+		ParamNode current = parent;
+
+		for (String part : parts) {
+			ParamNode child = findChildByKey(current, part);
+
+			if (child == null) {
+				child = new ParamNode();
+				child.setKey(part);
+				child.setDataType(ParamDataType.STRING.name());
+				treeTableModel.insertNodeInto(child, current, current.getChildCount());
+			}
+
+			current = child;
 		}
+		return current;
+	}
+
+	private ParamNode findChildByKey(ParamNode parent, String key) {
+		if (parent.getChildCount() == 0)
+			return null;
+		for (int i = 0; i < parent.getChildCount(); i++) {
+			ParamNode child = (ParamNode) parent.getChildAt(i);
+			if (key.equals(child.getKey())) {
+				return child;
+			}
+		}
+		return null;
 	}
 }

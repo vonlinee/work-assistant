@@ -15,8 +15,8 @@ public class SwingTreeTable extends JXTreeTable {
 
 	public void removeAllNodes() {
 		DefaultMutableTreeTableNode root = (DefaultMutableTreeTableNode) tableModel.getRoot();
-		for (int i = 0; i < root.getChildCount(); i++) {
-			root.remove(i);
+		while (root.getChildCount() > 0) {
+			tableModel.removeNodeFromParent((org.jdesktop.swingx.treetable.MutableTreeTableNode) root.getChildAt(0));
 		}
 	}
 }
