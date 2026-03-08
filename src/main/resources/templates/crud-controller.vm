@@ -1,0 +1,51 @@
+package ${package}.controller;
+
+import ${package}.entity.${className};
+import ${package}.service.I${className}Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * ${className} Controller — basic CRUD endpoints.
+ *
+ * @author ${author}
+ * @date ${date}
+ */
+@RestController
+@RequestMapping("/${classNameLC}")
+public class ${className}Controller#if($ctrlSuper && $ctrlSuper != "") extends ${ctrlSuper}#end {
+
+    @Autowired
+    private I${className}Service ${classNameLC}Service;
+
+    @GetMapping("/list")
+    public List<${className}> list() {
+        return ${classNameLC}Service.list();
+    }
+
+#if($pk)
+    @GetMapping("/{id}")
+    public ${className} getById(@PathVariable ${pk.javaType} id) {
+        return ${classNameLC}Service.getById(id);
+    }
+#end
+
+    @PostMapping
+    public boolean save(@RequestBody ${className} entity) {
+        return ${classNameLC}Service.save(entity);
+    }
+
+    @PutMapping
+    public boolean update(@RequestBody ${className} entity) {
+        return ${classNameLC}Service.updateById(entity);
+    }
+
+#if($pk)
+    @DeleteMapping("/{id}")
+    public boolean delete(@PathVariable ${pk.javaType} id) {
+        return ${classNameLC}Service.removeById(id);
+    }
+#end
+}

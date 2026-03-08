@@ -24,6 +24,13 @@ public class TemplateManager {
     private static final List<String> DEFAULT_TEMPLATES = List.of(
             "api-markdown.vm",
             "api-html.vm",
+            "crud-controller.vm",
+            "crud-create-table.vm",
+            "crud-entity.vm",
+            "crud-mapper-java.vm",
+            "crud-mapper-xml.vm",
+            "crud-service.vm",
+            "crud-service-impl.vm",
             "db-schema-markdown.vm",
             "db-schema-xml.vm");
 
