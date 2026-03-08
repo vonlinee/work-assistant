@@ -31,9 +31,9 @@ public class ParamNode extends DefaultMutableTreeTableNode {
 	private String jdbcType;
 
 	/**
-	 * 数据类型
+	 * 数据类型 (Now stored as a String to support arbitrary configuration items)
 	 */
-	private ParamDataType dataType;
+	private String dataType;
 
 	/**
 	 * 参数元数据
@@ -44,10 +44,10 @@ public class ParamNode extends DefaultMutableTreeTableNode {
 	private List<ParamNode> children;
 
 	public ParamNode() {
-		this(null, null, ParamDataType.UNKNOWN);
+		this(null, null, ParamDataType.UNKNOWN.name());
 	}
 
-	public ParamNode(String key, String value, ParamDataType dataType) {
+	public ParamNode(String key, String value, String dataType) {
 		this.key = key;
 		this.value = value;
 		this.dataType = dataType;
@@ -67,6 +67,6 @@ public class ParamNode extends DefaultMutableTreeTableNode {
 	}
 
 	public void setDataType(String dataType) {
-		this.dataType = ParamDataType.valueOf(dataType);
+		this.dataType = dataType;
 	}
 }

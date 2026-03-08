@@ -49,6 +49,7 @@ public class MyBatisToolPane implements ToolProvider {
 	private RSyntaxTextArea parsedContentArea;
 	private JTabbedPane bottomTabbedPane;
 	private JButton renderButton;
+	private JButton configTypesButton;
 
 	private MyBatisScanner scanner;
 
@@ -92,6 +93,21 @@ public class MyBatisToolPane implements ToolProvider {
 		parsedContentArea.setEditable(false);
 
 		renderButton = new JButton("Render SQL");
+		configTypesButton = new JButton("⚙ Config Param Types");
+		configTypesButton.addActionListener(e -> {
+			Window parentWindow = SwingUtilities.getWindowAncestor(borderPane);
+			if (parentWindow == null) {
+				// Fallback if not yet attached to a visible hierarchy
+				parentWindow = KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
+			}
+			if (parentWindow instanceof Frame) {
+				MyBatisTypeConfigDialog dialog = new MyBatisTypeConfigDialog((Frame) parentWindow);
+				boolean saved = dialog.showDialog();
+				if (saved && paramTable != null) {
+					paramTable.refreshTypeEditors();
+				}
+			}
+		});
 	}
 
 	private void layoutComponents() {
@@ -114,6 +130,7 @@ public class MyBatisToolPane implements ToolProvider {
 		JPanel rightPanel = new JPanel(new BorderLayout());
 		rightPanel.add(paramTable, BorderLayout.CENTER);
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		buttonPanel.add(configTypesButton);
 		buttonPanel.add(renderButton);
 		rightPanel.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -175,6 +192,21 @@ public class MyBatisToolPane implements ToolProvider {
 		});
 
 		renderButton.addActionListener(e -> renderSql());
+
+		configTypesButton.addActionListener(e -> {
+			Window parentWindow = SwingUtilities.getWindowAncestor(borderPane);
+			if (parentWindow == null) {
+				// Fallback if not yet attached to a visible hierarchy
+				parentWindow = KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
+			}
+			if (parentWindow instanceof Frame) {
+				MyBatisTypeConfigDialog dialog = new MyBatisTypeConfigDialog((Frame) parentWindow);
+				boolean saved = dialog.showDialog();
+				if (saved && paramTable != null) {
+					paramTable.refreshTypeEditors();
+				}
+			}
+		});
 	}
 
 	private void scanProject() {
@@ -269,7 +301,9 @@ public class MyBatisToolPane implements ToolProvider {
 						for (ParamNode pNode : children) {
 							if (pNode != null && pNode.getDataType() != null) {
 								try {
-									Object val = pNode.getDataType().parseObject(pNode.getValue(), null);
+									ParamDataType enumType = ParamDataType.asMap()
+											.getOrDefault(pNode.getDataType().toUpperCase(), ParamDataType.STRING);
+									Object val = enumType.parseObject(pNode.getValue(), null);
 									paramMap.put(pNode.getKey(), val);
 								} catch (Exception ignored) {
 								}
@@ -282,7 +316,9 @@ public class MyBatisToolPane implements ToolProvider {
 					if (children != null) {
 						for (ParamNode pNode : children) {
 							if (pNode != null && pNode.getValue() != null && !pNode.getValue().isEmpty()) {
-								String val = pNode.getDataType().quote(pNode.getValue());
+								ParamDataType enumType = ParamDataType.asMap()
+										.getOrDefault(pNode.getDataType().toUpperCase(), ParamDataType.STRING);
+								String val = enumType.quote(pNode.getValue());
 								sql = sql.replaceFirst("\\?",
 										val != null ? java.util.regex.Matcher.quoteReplacement(val) : "null");
 							}
