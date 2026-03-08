@@ -1,8 +1,7 @@
 package org.assistant.tools.sql;
 
-import com.alibaba.druid.DbType;
 import org.assistant.tools.ToolProvider;
-import org.assistant.ui.controls.ComboBox;
+import org.assistant.ui.controls.DbDialectComboBox;
 import org.assistant.ui.controls.Label;
 import org.assistant.ui.pane.BorderPane;
 import org.assistant.ui.pane.HBox;
@@ -19,10 +18,7 @@ class SqlToolPane extends BorderPane implements ToolProvider {
 		hBox.add(new Label("tools.sql.dbType", true));
 		hBox.setEmptyBorder(5);
 		hBox.addSpacing(5);
-		ComboBox<DbType> comboBox = new ComboBox<>();
-		for (DbType dbType : DbType.values()) {
-			comboBox.addItem(dbType);
-		}
+		DbDialectComboBox comboBox = new DbDialectComboBox();
 		hBox.add(comboBox);
 
 		setTop(hBox);
