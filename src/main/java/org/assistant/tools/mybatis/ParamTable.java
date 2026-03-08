@@ -73,4 +73,26 @@ public class ParamTable extends BorderPane {
 	public ParamNode getRootNode() {
 		return (ParamNode) treeTable.getTreeTableModel().getRoot();
 	}
+
+	public void importParameters(java.util.Map<String, String> params) {
+		if (params == null || params.isEmpty()) {
+			return;
+		}
+
+		ParamNode root = getRootNode();
+		if (root != null) {
+			traverseAndApplyParams(root, params);
+			treeTable.updateUI();
+		}
+	}
+
+	private void traverseAndApplyParams(ParamNode node, java.util.Map<String, String> params) {
+		if (node.getKey() != null && params.containsKey(node.getKey())) {
+			node.setValue(params.get(node.getKey()));
+		}
+		// If nested
+		for (int i = 0; i < node.getChildCount(); i++) {
+			traverseAndApplyParams((ParamNode) node.getChildAt(i), params);
+		}
+	}
 }

@@ -49,6 +49,8 @@ public class MyBatisToolPane implements ToolProvider {
 	private RSyntaxTextArea parsedContentArea;
 	private JTabbedPane bottomTabbedPane;
 	private JButton renderButton;
+	private JButton execQueryButton;
+	private JButton importParamsButton;
 	private JButton configTypesButton;
 
 	private MyBatisScanner scanner;
@@ -93,6 +95,8 @@ public class MyBatisToolPane implements ToolProvider {
 		parsedContentArea.setEditable(false);
 
 		renderButton = new JButton("Render SQL");
+		execQueryButton = new JButton("▶ Execute Query");
+		importParamsButton = new JButton("📥 Import Params");
 		configTypesButton = new JButton("⚙ Config Param Types");
 		configTypesButton.addActionListener(e -> {
 			Window parentWindow = SwingUtilities.getWindowAncestor(borderPane);
@@ -129,10 +133,12 @@ public class MyBatisToolPane implements ToolProvider {
 
 		JPanel rightPanel = new JPanel(new BorderLayout());
 		rightPanel.add(paramTable, BorderLayout.CENTER);
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		buttonPanel.add(configTypesButton);
-		buttonPanel.add(renderButton);
-		rightPanel.add(buttonPanel, BorderLayout.SOUTH);
+		JPanel rightBottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		rightBottomPanel.add(configTypesButton);
+		rightBottomPanel.add(importParamsButton);
+		rightBottomPanel.add(renderButton);
+		rightBottomPanel.add(execQueryButton);
+		rightPanel.add(rightBottomPanel, BorderLayout.SOUTH);
 
 		JPanel sqlPanel = new JPanel(new BorderLayout());
 		sqlPanel.add(new RTextScrollPane(sqlTextArea), BorderLayout.CENTER);
@@ -192,6 +198,7 @@ public class MyBatisToolPane implements ToolProvider {
 		});
 
 		renderButton.addActionListener(e -> renderSql());
+		importParamsButton.addActionListener(e -> openImportDialog());
 
 		configTypesButton.addActionListener(e -> {
 			Window parentWindow = SwingUtilities.getWindowAncestor(borderPane);
@@ -282,6 +289,19 @@ public class MyBatisToolPane implements ToolProvider {
 		}
 		paramTable.setStatement(null);
 		parsedContentArea.setText("");
+	}
+
+	private void openImportDialog() {
+		Window parentWindow = SwingUtilities.getWindowAncestor(borderPane);
+		if (parentWindow == null)
+			parentWindow = KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
+
+		if (parentWindow instanceof Frame frame) {
+			ParamImportDialog dialog = new ParamImportDialog(frame, params -> {
+				paramTable.importParameters(params);
+			});
+			dialog.setVisible(true);
+		}
 	}
 
 	private void renderSql() {
