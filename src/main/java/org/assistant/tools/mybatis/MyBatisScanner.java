@@ -36,9 +36,9 @@ public class MyBatisScanner {
 		// Required for some MyBatis internal behaviors if we don't have a full env
 		// setup
 		this.configuration.setEnvironment(new org.apache.ibatis.mapping.Environment.Builder("development")
-			.transactionFactory(new org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory())
-			.dataSource(new org.apache.ibatis.datasource.unpooled.UnpooledDataSource())
-			.build());
+				.transactionFactory(new org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory())
+				.dataSource(new org.apache.ibatis.datasource.unpooled.UnpooledDataSource())
+				.build());
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class MyBatisScanner {
 			// errors when modifying.
 
 			XMLMapperBuilder builder = new XMLMapperBuilder(inputStream, configuration, xmlFile.getAbsolutePath(),
-				configuration.getSqlFragments());
+					configuration.getSqlFragments());
 			builder.parse();
 		} catch (Exception e) {
 			System.err.println("Failed to parse MyBatis XML: " + xmlFile.getAbsolutePath() + " - " + e.getMessage());
@@ -99,13 +99,13 @@ public class MyBatisScanner {
 	private List<File> findMapperXmlFiles(Path root) throws Exception {
 		try (Stream<Path> stream = Files.walk(root)) {
 			return stream
-				.filter(Files::isRegularFile)
-				.filter(p -> p.toString().endsWith("Mapper.xml") || p.toString().endsWith("Dao.xml"))
-				// Exclude target/build directories
-				.filter(p -> !p.toString().contains(File.separator + "target" + File.separator))
-				.filter(p -> !p.toString().contains(File.separator + "build" + File.separator))
-				.map(Path::toFile)
-				.collect(Collectors.toList());
+					.filter(Files::isRegularFile)
+					.filter(p -> p.toString().endsWith("Mapper.xml") || p.toString().endsWith("Dao.xml"))
+					// Exclude target/build directories
+					.filter(p -> !p.toString().contains(File.separator + "target" + File.separator))
+					.filter(p -> !p.toString().contains(File.separator + "build" + File.separator))
+					.map(Path::toFile)
+					.collect(Collectors.toList());
 		}
 	}
 
@@ -120,15 +120,19 @@ public class MyBatisScanner {
 			try (InputStream inputStream = new FileInputStream(file)) {
 				MyConfiguration tempConfig = new MyConfiguration();
 				XMLMapperBuilder builder = new XMLMapperBuilder(inputStream, tempConfig, file.getAbsolutePath(),
-					tempConfig.getSqlFragments());
+						tempConfig.getSqlFragments());
 				builder.parse();
 
-				List<MappedStatement> statements = new ArrayList<>();
+				Map<String, MappedStatement> uniqueStatements = new HashMap<>();
 				for (Object stat : tempConfig.getMappedStatements()) {
-					if (stat instanceof MappedStatement) {
-						statements.add((MappedStatement) stat);
+					if (stat instanceof MappedStatement ms) {
+						// Filter out internal selectKey statements and ensure uniqueness by ID
+						if (!ms.getId().endsWith("!selectKey")) {
+							uniqueStatements.put(ms.getId(), ms);
+						}
 					}
 				}
+				List<MappedStatement> statements = new ArrayList<>(uniqueStatements.values());
 				result.put(file, statements);
 			} catch (Exception e) {
 				System.err.println("Failed to parse MyBatis XML: " + file.getAbsolutePath() + " - " + e.getMessage());
