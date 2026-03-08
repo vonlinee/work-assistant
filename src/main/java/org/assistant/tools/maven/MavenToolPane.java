@@ -392,6 +392,45 @@ public class MavenToolPane extends BorderPane implements ToolProvider {
         return tableModel.getRow(model);
     }
 
+    /**
+     * Opens the system file-explorer and selects (highlights) the given file.
+     * <ul>
+     * <li>Windows – uses {@code explorer.exe /select,<path>} so the file is
+     * highlighted.</li>
+     * <li>macOS – uses {@code open -R <path>} (Reveal in Finder).</li>
+     * <li>Other – falls back to {@link Desktop#open(java.io.File)} on the parent
+     * directory.</li>
+     * </ul>
+     */
+    private void showInExplorer(String filePath) {
+        File file = new File(filePath);
+        String os = System.getProperty("os.name", "").toLowerCase();
+        try {
+            if (os.contains("win")) {
+                // explorer /select,<path> → opens and highlights the file
+                new ProcessBuilder("explorer.exe", "/select,", file.getAbsolutePath())
+                        .start();
+            } else if (os.contains("mac")) {
+                new ProcessBuilder("open", "-R", file.getAbsolutePath())
+                        .start();
+            } else {
+                // Linux / fallback: open the parent directory
+                File parent = file.getParentFile();
+                if (parent != null && Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().open(parent);
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Cannot open file explorer on this platform.\nFile: " + filePath,
+                            "Not Supported", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Failed to open file explorer:\n" + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     // ── ToolProvider ───────────────────────────────────────────────────────
 
     @Override
