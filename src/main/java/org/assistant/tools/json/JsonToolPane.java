@@ -35,6 +35,7 @@ public class JsonToolPane implements ToolProvider {
     private JTextField searchField;
     private JButton searchButton;
     private JButton configPojoButton;
+    private JButton configSchemaButton;
 
     // Search state
     private String lastSearchTerm = "";
@@ -72,6 +73,7 @@ public class JsonToolPane implements ToolProvider {
 
         searchButton = new JButton("Search");
         configPojoButton = new JButton("⚙ Config POJO Setup");
+        configSchemaButton = new JButton("⚙ Config JSON Schema");
     }
 
     private void layoutComponents() {
@@ -87,12 +89,19 @@ public class JsonToolPane implements ToolProvider {
         leftPanel.add(leftBottom, BorderLayout.SOUTH);
 
         // Top Search / Action Bar over the Tree
-        JPanel topActionBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topActionBar.add(new JLabel("Search Node Key:"));
-        topActionBar.add(searchField);
-        topActionBar.add(searchButton);
-        topActionBar.add(Box.createHorizontalStrut(50));
-        topActionBar.add(configPojoButton);
+        JPanel topActionBar = new JPanel(new BorderLayout());
+
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        searchPanel.add(new JLabel("Search Node Key:"));
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+
+        JPanel configPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        configPanel.add(configPojoButton);
+        configPanel.add(configSchemaButton);
+
+        topActionBar.add(searchPanel, BorderLayout.NORTH);
+        topActionBar.add(configPanel, BorderLayout.SOUTH);
 
         // Right Panel (Tree)
         JPanel rightPanel = new JPanel(new BorderLayout());
@@ -117,6 +126,7 @@ public class JsonToolPane implements ToolProvider {
         searchField.addActionListener(e -> performSearch()); // Enter key trigger
 
         configPojoButton.addActionListener(e -> configureAndGeneratePojo());
+        configSchemaButton.addActionListener(e -> configureAndGenerateSchema());
     }
 
     private void loadJsonFile() {
@@ -139,34 +149,78 @@ public class JsonToolPane implements ToolProvider {
         }
     }
 
-    private void configureAndGeneratePojo() {
+    private void configureAndGenerateSchema() {
+        JsonNode targetNode = null;
         int viewRow = currentTreeTable.getSelectedRow();
         if (viewRow < 0) {
-            JOptionPane.showMessageDialog(borderPane, "Please select a JSON Object node from the tree first.",
-                    "No Selection", JOptionPane.WARNING_MESSAGE);
-            return;
+            targetNode = (JsonNode) treeTableModel.getRoot();
+            if (targetNode == null) {
+                JOptionPane.showMessageDialog(borderPane, "Please load and parse a JSON payload first.",
+                        "No Data", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        } else {
+            int modelRow = currentTreeTable.convertRowIndexToModel(viewRow);
+            TreePath path = currentTreeTable.getPathForRow(modelRow);
+            if (path != null) {
+                Object node = path.getLastPathComponent();
+                if (node instanceof JsonNode jsonNode) {
+                    targetNode = jsonNode;
+                }
+            }
         }
 
-        int modelRow = currentTreeTable.convertRowIndexToModel(viewRow);
-        TreePath path = currentTreeTable.getPathForRow(modelRow);
-        if (path != null) {
-            Object node = path.getLastPathComponent();
-            if (node instanceof JsonNode jsonNode) {
-                JsonElement element = jsonNode.getJsonElement();
-                if (element != null && element.isJsonObject()) {
-                    Window parentWindow = SwingUtilities.getWindowAncestor(borderPane);
-                    if (parentWindow == null)
-                        parentWindow = KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
+        if (targetNode != null) {
+            JsonElement element = targetNode.getJsonElement();
+            if (element != null) {
+                Window parentWindow = SwingUtilities.getWindowAncestor(borderPane);
+                if (parentWindow == null)
+                    parentWindow = KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
 
-                    if (parentWindow instanceof Frame frame) {
-                        PojoConfigDialog dialog = new PojoConfigDialog(frame, element);
-                        dialog.setVisible(true);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(borderPane,
-                            "Selected node is not a JSON Object. POJO generation requires an Object mapping.",
-                            "Invalid Selection", JOptionPane.ERROR_MESSAGE);
+                if (parentWindow instanceof Frame frame) {
+                    JsonSchemaConfigDialog dialog = new JsonSchemaConfigDialog(frame, element);
+                    dialog.setVisible(true);
                 }
+            }
+        }
+    }
+
+    private void configureAndGeneratePojo() {
+        JsonNode targetNode = null;
+        int viewRow = currentTreeTable.getSelectedRow();
+        if (viewRow < 0) {
+            targetNode = (JsonNode) treeTableModel.getRoot();
+            if (targetNode == null) {
+                JOptionPane.showMessageDialog(borderPane, "Please load and parse a JSON payload first.",
+                        "No Data", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        } else {
+            int modelRow = currentTreeTable.convertRowIndexToModel(viewRow);
+            TreePath path = currentTreeTable.getPathForRow(modelRow);
+            if (path != null) {
+                Object node = path.getLastPathComponent();
+                if (node instanceof JsonNode jsonNode) {
+                    targetNode = jsonNode;
+                }
+            }
+        }
+
+        if (targetNode != null) {
+            JsonElement element = targetNode.getJsonElement();
+            if (element != null && element.isJsonObject()) {
+                Window parentWindow = SwingUtilities.getWindowAncestor(borderPane);
+                if (parentWindow == null)
+                    parentWindow = KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
+
+                if (parentWindow instanceof Frame frame) {
+                    PojoConfigDialog dialog = new PojoConfigDialog(frame, element);
+                    dialog.setVisible(true);
+                }
+            } else {
+                JOptionPane.showMessageDialog(borderPane,
+                        "Selected node is not a JSON Object. POJO generation requires an Object mapping.",
+                        "Invalid Selection", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
