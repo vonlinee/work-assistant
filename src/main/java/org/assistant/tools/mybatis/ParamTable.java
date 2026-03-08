@@ -47,7 +47,7 @@ public class ParamTable extends BorderPane {
 		if (mappings != null) {
 			ParamNode root = getRootNode();
 			for (ParameterMapping pm : mappings) {
-				ParamNode node = getOrCreatePath(root, pm.getProperty());
+				ParamNode node = getOrCreatePath(root, pm.getProperty(), false);
 				node.setJdbcType(pm.getJdbcType() != null ? pm.getJdbcType().name() : "");
 				// Guess ParamDataType from javaType
 				ParamDataType dataType = ParamDataType.STRING;
@@ -73,26 +73,42 @@ public class ParamTable extends BorderPane {
 		return (ParamNode) treeTable.getTreeTableModel().getRoot();
 	}
 
-	public void importParameters(java.util.Map<String, String> params) {
+	public void importParameters(java.util.Map<String, String> params, boolean override) {
 		if (params == null || params.isEmpty()) {
 			return;
 		}
 
 		ParamNode root = getRootNode();
 		if (root != null) {
+			if (override) {
+				clearValues(root);
+			}
 			for (java.util.Map.Entry<String, String> entry : params.entrySet()) {
-				ParamNode leaf = getOrCreatePath(root, entry.getKey());
-				leaf.setValue(entry.getValue());
+				String key = entry.getKey();
+				String mapValue = entry.getValue();
+
+				// Skip empty values during merge if they're coming from URL keys without values
+				if (!override && (mapValue == null || mapValue.isEmpty())) {
+					continue;
+				}
+
+				ParamNode leaf = getOrCreatePath(root, key, !override);
+				leaf.setValue(mapValue);
 			}
 			treeTable.updateUI();
 			treeTable.expandAll();
 		}
 	}
 
-	private ParamNode getOrCreatePath(ParamNode parent, String fullKey) {
+	private void clearValues(ParamNode node) {
+		node.setValue("");
+		for (int i = 0; i < node.getChildCount(); i++) {
+			clearValues((ParamNode) node.getChildAt(i));
+		}
+	}
+
+	private ParamNode getOrCreatePath(ParamNode parent, String fullKey, boolean mergeExistingOnly) {
 		java.util.List<String> parts = new java.util.ArrayList<>();
-		// Extract object properties and array indices separately, e.g. user.friends[0]
-		// -> user, friends, [0]
 		java.util.regex.Matcher m = java.util.regex.Pattern.compile("([^\\[\\]\\.]+)|(\\[[0-9]+\\])").matcher(fullKey);
 		while (m.find()) {
 			parts.add(m.group());
@@ -100,10 +116,17 @@ public class ParamTable extends BorderPane {
 
 		ParamNode current = parent;
 
-		for (String part : parts) {
+		for (int i = 0; i < parts.size(); i++) {
+			String part = parts.get(i);
 			ParamNode child = findChildByKey(current, part);
 
 			if (child == null) {
+				// If we are in merge mode, we don't automatically create undefined nested
+				// properties
+				// unless explicitly allowed. For now, since it mimics standard import behavior,
+				// if mergeExistingOnly is true and the leaf doesn't exist, we still create it
+				// to capture
+				// the import value, but it ensures we aren't completely deleting the tree
 				child = new ParamNode();
 				child.setKey(part);
 				child.setDataType(ParamDataType.STRING.name());

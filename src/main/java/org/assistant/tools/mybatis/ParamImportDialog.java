@@ -13,27 +13,46 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class ParamImportDialog extends JDialog {
 
     private final RSyntaxTextArea inputArea;
-    private final Consumer<Map<String, String>> onImport;
+    private final ParamNode rootNode;
+    private final BiConsumer<Map<String, String>, Boolean> onImport;
+    private JComboBox<String> strategyCombo;
+    private JComboBox<String> formatCombo;
 
-    public ParamImportDialog(Frame owner, Consumer<Map<String, String>> onImport) {
+    public ParamImportDialog(Frame owner, ParamNode rootNode, BiConsumer<Map<String, String>, Boolean> onImport) {
         super(owner, "Import Parameters", true);
+        this.rootNode = rootNode;
         this.onImport = onImport;
 
         inputArea = new RSyntaxTextArea(15, 60);
         inputArea.setToolTipText("Paste a URL query string or a JSON object here...");
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        formatCombo = new JComboBox<>(new String[] { "JSON", "URL Query" });
+        JButton mockBtn = new JButton("🎲 Generate Mock");
+        strategyCombo = new JComboBox<>(new String[] { "Merge", "Override" });
         JButton importBtn = new JButton("Parse & Import");
         JButton cancelBtn = new JButton("Cancel");
 
+        mockBtn.addActionListener(e -> {
+            if ("JSON".equals(formatCombo.getSelectedItem())) {
+                generateMockJson();
+            } else {
+                generateMockUrl();
+            }
+        });
         importBtn.addActionListener(e -> parseAndImport());
         cancelBtn.addActionListener(e -> dispose());
 
+        buttonPanel.add(formatCombo);
+        buttonPanel.add(mockBtn);
+        buttonPanel.add(new JLabel("Strategy: "));
+        buttonPanel.add(strategyCombo);
         buttonPanel.add(importBtn);
         buttonPanel.add(cancelBtn);
 
@@ -101,7 +120,8 @@ public class ParamImportDialog extends JDialog {
                 JOptionPane.showMessageDialog(this, "No parameters could be parsed from the input.", "Parse Result",
                         JOptionPane.INFORMATION_MESSAGE);
             } else {
-                onImport.accept(parsedParams);
+                boolean isOverride = "Override".equals(strategyCombo.getSelectedItem());
+                onImport.accept(parsedParams, isOverride);
                 dispose();
             }
 
@@ -125,11 +145,100 @@ public class ParamImportDialog extends JDialog {
                 extractJsonValues(prefixKey + "." + entry.getKey(), entry.getValue(), params);
             }
         } else if (element.isJsonArray()) {
-            // Arrays are usually joined or passed as JSON string in simple param contexts.
-            // For now, flattening the array as a single string (like "1,2,3") or just JSON
-            // string.
-            // Using a simple JSON dump for arrays is safest.
             params.put(prefixKey, element.toString());
+        }
+    }
+
+    private void generateMockJson() {
+        if (rootNode == null || rootNode.getChildCount() == 0) {
+            JOptionPane.showMessageDialog(this, "No parameters available to mock.", "Empty Params",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        JsonObject rootJson = new JsonObject();
+        for (int i = 0; i < rootNode.getChildCount(); i++) {
+            ParamNode child = (ParamNode) rootNode.getChildAt(i);
+            buildMockJson(rootJson, child);
+        }
+
+        com.google.gson.Gson gson = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
+        inputArea.setText(gson.toJson(rootJson));
+        inputArea.setCaretPosition(0);
+    }
+
+    private void buildMockJson(JsonObject parent, ParamNode node) {
+        if (node.getChildCount() > 0) {
+            JsonObject obj = new JsonObject();
+            for (int i = 0; i < node.getChildCount(); i++) {
+                buildMockJson(obj, (ParamNode) node.getChildAt(i));
+            }
+            parent.add(node.getKey(), obj);
+        } else {
+            String type = node.getDataType() != null ? node.getDataType().toUpperCase() : "STRING";
+            if (type.equals("NUMERIC")) {
+                parent.addProperty(node.getKey(), 1);
+            } else if (type.equals("BOOLEAN")) {
+                parent.addProperty(node.getKey(), true);
+            } else {
+                parent.addProperty(node.getKey(), "mock_" + node.getKey().replace("[", "").replace("]", ""));
+            }
+        }
+    }
+
+    private void generateMockUrl() {
+        if (rootNode == null || rootNode.getChildCount() == 0) {
+            JOptionPane.showMessageDialog(this, "No parameters available to mock.", "Empty Params",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < rootNode.getChildCount(); i++) {
+            ParamNode child = (ParamNode) rootNode.getChildAt(i);
+            buildMockUrl(sb, child.getKey(), child);
+        }
+
+        if (sb.length() > 0 && sb.charAt(sb.length() - 1) == '&') {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+
+        inputArea.setText(sb.toString());
+        inputArea.setCaretPosition(0);
+    }
+
+    private void buildMockUrl(StringBuilder sb, String currentPath, ParamNode node) {
+        if (node.getChildCount() > 0) {
+            for (int i = 0; i < node.getChildCount(); i++) {
+                ParamNode child = (ParamNode) node.getChildAt(i);
+                String childPath = child.getKey();
+                String newPath;
+                if (childPath.startsWith("[")) {
+                    newPath = currentPath + childPath;
+                } else {
+                    newPath = currentPath + "." + childPath;
+                }
+                buildMockUrl(sb, newPath, child);
+            }
+        } else {
+            String type = node.getDataType() != null ? node.getDataType().toUpperCase() : "STRING";
+            Object val;
+            if (type.equals("NUMERIC")) {
+                val = 1;
+            } else if (type.equals("BOOLEAN")) {
+                val = true;
+            } else {
+                val = "mock_" + node.getKey().replace("[", "").replace("]", "");
+            }
+
+            try {
+                sb.append(java.net.URLEncoder.encode(currentPath, "UTF-8"))
+                        .append("=")
+                        .append(java.net.URLEncoder.encode(String.valueOf(val), "UTF-8"))
+                        .append("&");
+            } catch (Exception e) {
+                sb.append(currentPath).append("=").append(val).append("&");
+            }
         }
     }
 }

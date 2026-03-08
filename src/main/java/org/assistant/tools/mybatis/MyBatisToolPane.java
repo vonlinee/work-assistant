@@ -297,8 +297,8 @@ public class MyBatisToolPane implements ToolProvider {
 			parentWindow = KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
 
 		if (parentWindow instanceof Frame frame) {
-			ParamImportDialog dialog = new ParamImportDialog(frame, params -> {
-				paramTable.importParameters(params);
+			ParamImportDialog dialog = new ParamImportDialog(frame, paramTable.getRootNode(), (params, override) -> {
+				paramTable.importParameters(params, override);
 			});
 			dialog.setVisible(true);
 		}
