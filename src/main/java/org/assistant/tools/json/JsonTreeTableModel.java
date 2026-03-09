@@ -27,6 +27,13 @@ public class JsonTreeTableModel extends DefaultTreeTableModel {
     @Override
     public boolean isCellEditable(Object node, int column) {
         // Core JSON nodes are inherently read-only structure viewers
+			if (column == 1) {
+				if (node instanceof JsonNode) {
+					if (((JsonNode) node).isLeaf()) {
+						return true;
+					}
+				}
+			}
         return false;
     }
 }
