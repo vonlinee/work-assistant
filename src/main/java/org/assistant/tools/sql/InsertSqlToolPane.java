@@ -1,7 +1,6 @@
 package org.assistant.tools.sql;
 
 import org.assistant.tools.ToolProvider;
-import org.assistant.ui.controls.DbDialectComboBox;
 import org.assistant.ui.pane.BorderPane;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -17,11 +16,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.alibaba.druid.DbType;
-
 public class InsertSqlToolPane extends BorderPane implements ToolProvider {
 
-    private final DbDialectComboBox dialectBox;
     private final RSyntaxTextArea inputArea;
     private final JButton parseButton;
     private final JButton addEmptyRowButton;
@@ -46,14 +42,9 @@ public class InsertSqlToolPane extends BorderPane implements ToolProvider {
         topPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        dialectBox = new DbDialectComboBox();
         parseButton = new JButton("Parse SQL");
         addEmptyRowButton = new JButton("Add Empty Row");
-        JButton configTypesButton = new JButton("⚙ Config Types");
 
-        controlPanel.add(new JLabel("Dialect: "));
-        controlPanel.add(dialectBox);
-        controlPanel.add(configTypesButton);
         controlPanel.add(parseButton);
         controlPanel.add(addEmptyRowButton);
 
@@ -102,39 +93,14 @@ public class InsertSqlToolPane extends BorderPane implements ToolProvider {
         addEmptyRowButton.addActionListener(e -> {
             if (tableModel.getColumnCount() == 0) {
                 parsedTableName = "table_name";
-                tableModel.setColumnIdentifiers(new Object[] { "Column Name", "Type", "Value (Row 1)", "Actions" });
-                setupColumnRenderers(1);
+                parsedColumns.clear();
+                parsedColumns.add("Column 1");
+                tableModel.setColumnIdentifiers(new Object[] { "Column 1", "Actions" });
+                setupColumnRenderers();
             }
             addEmptyRow(-1);
         });
         generateButton.addActionListener(e -> generateSql());
-
-        dialectBox.addActionListener(e -> {
-            // Reattach datatypes to combo box column dynamically whenever the dialect
-            // changes, if we actually have data loaded already.
-            if (tableModel.getColumnCount() >= 2) {
-                int numValueRows = tableModel.getColumnCount() - 3;
-                setupColumnRenderers(numValueRows);
-            }
-        });
-
-        configTypesButton.addActionListener(e -> {
-            Window parentWindow = SwingUtilities.getWindowAncestor(this);
-            if (parentWindow instanceof Frame) {
-                DataTypeConfigDialog dialog = new DataTypeConfigDialog((Frame) parentWindow);
-                // Pre-select the dialog's box to the currently active tool dialect
-                // so the user immediately sees the types they wanted to edit.
-                // Assuming DbDialectComboBox allows programmatic setting via normal
-                // setSelectedItem:
-                // dialog logic handles loading automatically on select.
-
-                boolean saved = dialog.showDialog();
-                if (saved && tableModel.getColumnCount() >= 2) {
-                    int numValueRows = tableModel.getColumnCount() - 3;
-                    setupColumnRenderers(numValueRows);
-                }
-            }
-        });
 
         setupTableContextMenu();
     }
@@ -200,9 +166,7 @@ public class InsertSqlToolPane extends BorderPane implements ToolProvider {
         if (tableModel.getColumnCount() == 0)
             return;
         Object[] emptyData = new Object[tableModel.getColumnCount()];
-        emptyData[0] = "Column " + (tableModel.getRowCount() + 1);
-        emptyData[1] = "VARCHAR"; // Default Type
-        for (int i = 2; i < tableModel.getColumnCount() - 1; i++) {
+        for (int i = 0; i < tableModel.getColumnCount() - 1; i++) {
             emptyData[i] = ""; // Values
         }
         emptyData[tableModel.getColumnCount() - 1] = ""; // Actions column
@@ -293,85 +257,42 @@ public class InsertSqlToolPane extends BorderPane implements ToolProvider {
             }
         }
 
-        // --- PIVOT THE TABLE ---
-        // Setup Headers: "Column Name", "Type", "Row 1", "Row 2"..., "Actions"
-        List<String> headers = new ArrayList<>();
-        headers.add("Column Name");
-        headers.add("Type");
-
-        int numValueRows = valueSets.isEmpty() ? 1 : valueSets.size();
-        for (int i = 0; i < numValueRows; i++) {
-            headers.add("Value (Row " + (i + 1) + ")");
-        }
+        // --- POPULATE THE TABLE BY ROW ---
+        // Setup Headers: each column name ..., "Actions"
+        List<String> headers = new ArrayList<>(parsedColumns);
         headers.add("Actions");
 
         // Update JTable Model Structure
         tableModel.setColumnIdentifiers(headers.toArray());
         tableModel.setRowCount(0);
 
-        setupColumnRenderers(numValueRows);
+        setupColumnRenderers();
 
-        // Populate Pivoted Rows (Each Row = 1 Parameter)
-        for (int colIdx = 0; colIdx < parsedColumns.size(); colIdx++) {
-            List<Object> pivotRow = new ArrayList<>();
-            pivotRow.add(parsedColumns.get(colIdx)); // Column Name
-
-            // Infer Type from Row 0
-            String firstVal = (valueSets.isEmpty() || valueSets.get(0).size() <= colIdx) ? ""
-                    : valueSets.get(0).get(colIdx);
-            pivotRow.add(inferDataType(firstVal)); // Type
-
-            // Values
-            for (int rowIdx = 0; rowIdx < numValueRows; rowIdx++) {
-                List<String> rowSet = valueSets.get(rowIdx);
+        // Populate Data Rows
+        for (List<String> rowSet : valueSets) {
+            List<Object> rowData = new ArrayList<>();
+            for (int colIdx = 0; colIdx < parsedColumns.size(); colIdx++) {
                 if (colIdx < rowSet.size()) {
-                    pivotRow.add(rowSet.get(colIdx));
+                    rowData.add(rowSet.get(colIdx));
                 } else {
-                    pivotRow.add(""); // Pad missing dataset
+                    rowData.add(""); // Pad missing dataset
                 }
             }
-
-            pivotRow.add(""); // Actions End Column
-            tableModel.addRow(pivotRow.toArray());
+            rowData.add(""); // Actions End Column
+            tableModel.addRow(rowData.toArray());
         }
     }
 
-    private void setupColumnRenderers(int numValueRows) {
+    private void setupColumnRenderers() {
         // Actions Renderer (Always the Last Column)
-        int actionColIdx = 2 + numValueRows;
-        if (actionColIdx < tableModel.getColumnCount()) {
+        int actionColIdx = tableModel.getColumnCount() - 1;
+        if (actionColIdx >= 0) {
             ActionPanelEditorRenderer actionRenderer = new ActionPanelEditorRenderer();
             dataTable.getColumnModel().getColumn(actionColIdx).setCellRenderer(actionRenderer);
             dataTable.getColumnModel().getColumn(actionColIdx).setCellEditor(actionRenderer);
             dataTable.getColumnModel().getColumn(actionColIdx).setPreferredWidth(120);
             dataTable.getColumnModel().getColumn(actionColIdx).setMaxWidth(120);
         }
-
-        // Type ComboBox Renderer (Always Column 1)
-        DbType selectedDialect = (DbType) dialectBox.getSelectedItem();
-        String[] types = DataTypeManager.getTypesForDialect(selectedDialect);
-        JComboBox<String> typeCombo = new JComboBox<>(types);
-        dataTable.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(typeCombo));
-    }
-
-    private String inferDataType(String val) {
-        if (val == null || val.trim().isEmpty() || val.equalsIgnoreCase("null")) {
-            return "VARCHAR";
-        }
-        val = val.trim();
-        if (val.startsWith("'") || val.startsWith("\"")) {
-            return "VARCHAR";
-        }
-        if (val.matches("(?i).*\\(.*\\).*")) { // e.g. NOW()
-            return "DATETIME";
-        }
-        if (val.matches("-?\\d+")) {
-            return "INT";
-        }
-        if (val.matches("-?\\d+\\.\\d+")) {
-            return "DECIMAL";
-        }
-        return "VARCHAR";
     }
 
     private void generateSql() {
@@ -383,8 +304,8 @@ public class InsertSqlToolPane extends BorderPane implements ToolProvider {
         StringBuilder sb = new StringBuilder();
         sb.append("INSERT INTO ").append(parsedTableName);
 
-        int paramCount = tableModel.getRowCount(); // Because Table is Pivoted, RowCount = ParamCount
-        int numValueRows = tableModel.getColumnCount() - 3; // "Name, Type ... Actions"
+        int paramCount = tableModel.getColumnCount() - 1; // Number of data columns (excluding Actions)
+        int numValueRows = tableModel.getRowCount();
 
         if (paramCount == 0)
             return;
@@ -392,7 +313,7 @@ public class InsertSqlToolPane extends BorderPane implements ToolProvider {
         // Reattach explicit columns
         sb.append(" (");
         for (int i = 0; i < paramCount; i++) {
-            sb.append(tableModel.getValueAt(i, 0)); // Param Name Name
+            sb.append(tableModel.getColumnName(i));
             if (i < paramCount - 1)
                 sb.append(", ");
         }
@@ -403,8 +324,7 @@ public class InsertSqlToolPane extends BorderPane implements ToolProvider {
         for (int valRowIdx = 0; valRowIdx < numValueRows; valRowIdx++) {
             sb.append("  (");
             for (int pIdx = 0; pIdx < paramCount; pIdx++) {
-                // Column 2 indicates the first value row
-                Object val = tableModel.getValueAt(pIdx, 2 + valRowIdx);
+                Object val = tableModel.getValueAt(valRowIdx, pIdx);
                 String strVal = (val == null) ? "" : val.toString();
                 sb.append(strVal);
                 if (pIdx < paramCount - 1)
