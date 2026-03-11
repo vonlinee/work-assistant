@@ -16,16 +16,34 @@ import java.util.Map;
  */
 public class JsonNode extends DefaultMutableTreeTableNode {
 
-    private final String key;
-    private final JsonElement element;
+    private String key;
+    private JsonElement element;
     private boolean childrenLoaded = false;
 
     // Cached logical type specifically for UI rendering
-    private final String displayType;
-    private final String displayValue;
+    private String displayType;
+    private String displayValue;
 
     public JsonNode(String key, JsonElement element) {
         this.key = key;
+        updateNodeData(element);
+    }
+
+    public void setKey(String newKey) {
+        this.key = newKey;
+    }
+
+    public void reloadChildren() {
+        this.childrenLoaded = false;
+        if (getChildCount() > 0) {
+            for (int i = getChildCount() - 1; i >= 0; i--) {
+                remove(i);
+            }
+        }
+        lazyLoadChildren();
+    }
+
+    public void updateNodeData(JsonElement element) {
         this.element = element;
 
         if (element.isJsonObject()) {

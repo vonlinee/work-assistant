@@ -28,6 +28,7 @@ public class JsonToolPane implements ToolProvider {
     private JButton loadFileButton;
     private JButton formatButton;
     private JButton parseButton;
+    private JButton exportButton;
 
     private SwingTreeTable currentTreeTable;
     private JsonTreeTableModel treeTableModel;
@@ -58,6 +59,7 @@ public class JsonToolPane implements ToolProvider {
         loadFileButton = new JButton("Load File");
         formatButton = new JButton("Format JSON");
         parseButton = new JButton("Parse / Analyze JSON");
+        exportButton = new JButton("Export to JSON");
 
         treeTableModel = new JsonTreeTableModel();
         currentTreeTable = new SwingTreeTable(treeTableModel);
@@ -84,6 +86,7 @@ public class JsonToolPane implements ToolProvider {
 
         JPanel leftBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         leftBottom.add(loadFileButton);
+        leftBottom.add(exportButton);
         leftBottom.add(formatButton);
         leftBottom.add(parseButton);
         leftPanel.add(leftBottom, BorderLayout.SOUTH);
@@ -119,6 +122,7 @@ public class JsonToolPane implements ToolProvider {
 
     private void setupListeners() {
         loadFileButton.addActionListener(e -> loadJsonFile());
+        exportButton.addActionListener(e -> exportJsonContent());
         formatButton.addActionListener(e -> formatJsonContent());
         parseButton.addActionListener(e -> parseJsonContent());
 
@@ -134,10 +138,20 @@ public class JsonToolPane implements ToolProvider {
         JMenuItem collapseItem = new JMenuItem("Collapse Node");
         JMenuItem collapseRecursiveItem = new JMenuItem("Collapse Node (Recursively)");
 
+        JMenuItem addNodeItem = new JMenuItem("Add Child Node");
+        JMenuItem removeNodeItem = new JMenuItem("Remove Node");
+        JMenuItem renameKeyItem = new JMenuItem("Rename Key");
+        JMenuItem mergeJsonItem = new JMenuItem("Merge JSON Data");
+
         popupMenu.add(expandItem);
         popupMenu.add(expandRecursiveItem);
         popupMenu.add(collapseItem);
         popupMenu.add(collapseRecursiveItem);
+        popupMenu.addSeparator();
+        popupMenu.add(addNodeItem);
+        popupMenu.add(removeNodeItem);
+        popupMenu.add(renameKeyItem);
+        popupMenu.add(mergeJsonItem);
 
         java.awt.event.ActionListener popupListener = ev -> {
             int row = currentTreeTable.getSelectedRow();
@@ -145,18 +159,121 @@ public class JsonToolPane implements ToolProvider {
                 TreePath path = currentTreeTable.getPathForRow(row);
                 if (path != null) {
                     Object node = path.getLastPathComponent();
-                    if (node instanceof JsonNode jsonNode && !jsonNode.isLeaf()) {
-                        boolean expand = ev.getSource() == expandItem || ev.getSource() == expandRecursiveItem;
-                        boolean recursive = ev.getSource() == expandRecursiveItem || ev.getSource() == collapseRecursiveItem;
-
-                        // UI operations can take a while on massive JSON trees. Run asynchronously to prevent locking the EDT.
-                        SwingUtilities.invokeLater(() -> {
-                            if (expand) {
-                                org.assistant.util.SwingUtils.expandNode(currentTreeTable, path, recursive);
-                            } else {
-                                org.assistant.util.SwingUtils.collapseNode(currentTreeTable, path, recursive);
+                    if (node instanceof JsonNode jsonNode) {
+                        if (ev.getSource() == expandItem || ev.getSource() == expandRecursiveItem || ev.getSource() == collapseItem || ev.getSource() == collapseRecursiveItem) {
+                            if (!jsonNode.isLeaf()) {
+                                boolean expand = ev.getSource() == expandItem || ev.getSource() == expandRecursiveItem;
+                                boolean recursive = ev.getSource() == expandRecursiveItem || ev.getSource() == collapseRecursiveItem;
+                                SwingUtilities.invokeLater(() -> {
+                                    if (expand) {
+                                        org.assistant.util.SwingUtils.expandNode(currentTreeTable, path, recursive);
+                                    } else {
+                                        org.assistant.util.SwingUtils.collapseNode(currentTreeTable, path, recursive);
+                                    }
+                                });
                             }
-                        });
+                        } else if (ev.getSource() == removeNodeItem) {
+                            org.jdesktop.swingx.treetable.TreeTableNode parent = jsonNode.getParent();
+                            if (parent instanceof JsonNode parentNode && parentNode.getJsonElement() != null) {
+                                com.google.gson.JsonElement parentEl = parentNode.getJsonElement();
+                                if (parentEl.isJsonObject()) {
+                                    parentEl.getAsJsonObject().remove(jsonNode.getKey());
+                                } else if (parentEl.isJsonArray()) {
+                                    String keyStr = jsonNode.getKey();
+                                    if (keyStr.startsWith("[") && keyStr.endsWith("]")) {
+                                        try {
+                                            int idx = Integer.parseInt(keyStr.substring(1, keyStr.length() - 1));
+                                            parentEl.getAsJsonArray().remove(idx);
+                                        } catch (NumberFormatException ignored) {}
+                                    }
+                                }
+                                treeTableModel.removeNodeFromParent(jsonNode);
+                                parentNode.reloadChildren(); // resync array indices visually
+                                treeTableModel.fireNodeStructureChanged(parentNode);
+                            } else if (parent == null || parent == treeTableModel.getRoot()) {
+                                JOptionPane.showMessageDialog(borderPane, "Cannot remove the root node.", "Warning", JOptionPane.WARNING_MESSAGE);
+                            }
+                        } else if (ev.getSource() == renameKeyItem) {
+                            org.jdesktop.swingx.treetable.TreeTableNode parent = jsonNode.getParent();
+                            if (parent instanceof JsonNode parentNode && parentNode.getJsonElement() != null && parentNode.getJsonElement().isJsonObject()) {
+                                String newKey = JOptionPane.showInputDialog(borderPane, "Enter new key name:", jsonNode.getKey());
+                                if (newKey != null && !newKey.isBlank() && !newKey.equals(jsonNode.getKey())) {
+                                    com.google.gson.JsonObject parentObj = parentNode.getJsonElement().getAsJsonObject();
+                                    if (parentObj.has(newKey)) {
+                                        JOptionPane.showMessageDialog(borderPane, "Key already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+                                    com.google.gson.JsonElement el = parentObj.remove(jsonNode.getKey());
+                                    parentObj.add(newKey, el);
+                                    jsonNode.setKey(newKey);
+                                    treeTableModel.fireNodeChanged(jsonNode);
+                                }
+                            } else {
+                                JOptionPane.showMessageDialog(borderPane, "Can only rename keys within a JSON Object.", "Warning", JOptionPane.WARNING_MESSAGE);
+                            }
+                        } else if (ev.getSource() == addNodeItem) {
+                            if (!jsonNode.getJsonElement().isJsonObject() && !jsonNode.getJsonElement().isJsonArray()) {
+                                JOptionPane.showMessageDialog(borderPane, "Can only add children to Arrays or Objects.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+                            String key = "";
+                            if (jsonNode.getJsonElement().isJsonObject()) {
+                                key = JOptionPane.showInputDialog(borderPane, "Enter new key name:");
+                                if (key == null || key.isBlank()) return;
+                                if (jsonNode.getJsonElement().getAsJsonObject().has(key)) {
+                                    JOptionPane.showMessageDialog(borderPane, "Key already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+                            String val = JOptionPane.showInputDialog(borderPane, "Enter string value (or valid JSON):");
+                            if (val == null) return;
+                            
+                            com.google.gson.JsonElement newEl;
+                            try {
+                                newEl = com.google.gson.JsonParser.parseString(val);
+                                if (!newEl.isJsonPrimitive() && !newEl.isJsonNull()) {
+                                    newEl = new com.google.gson.JsonPrimitive(val); // fallback if accidentally parsed as object string without intent
+                                }
+                            } catch (Exception e) {
+                                newEl = new com.google.gson.JsonPrimitive(val);
+                            }
+                            
+                            if (jsonNode.getJsonElement().isJsonObject()) {
+                                jsonNode.getJsonElement().getAsJsonObject().add(key, newEl);
+                            } else {
+                                jsonNode.getJsonElement().getAsJsonArray().add(newEl);
+                            }
+                            jsonNode.reloadChildren();
+                            treeTableModel.fireNodeStructureChanged(jsonNode);
+                            currentTreeTable.expandPath(path);
+                        } else if (ev.getSource() == mergeJsonItem) {
+                            if (!jsonNode.getJsonElement().isJsonObject() && !jsonNode.getJsonElement().isJsonArray()) {
+                                JOptionPane.showMessageDialog(borderPane, "Can only merge into Arrays or Objects.", "Warning", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+                            JTextArea textArea = new JTextArea(10, 30);
+                            int result = JOptionPane.showConfirmDialog(borderPane, new JScrollPane(textArea), "Paste JSON to Merge", JOptionPane.OK_CANCEL_OPTION);
+                            if (result == JOptionPane.OK_OPTION) {
+                                try {
+                                    com.google.gson.JsonElement parsed = com.google.gson.JsonParser.parseString(textArea.getText());
+                                    if (jsonNode.getJsonElement().isJsonObject() && parsed.isJsonObject()) {
+                                        for (java.util.Map.Entry<String, com.google.gson.JsonElement> entry : parsed.getAsJsonObject().entrySet()) {
+                                            jsonNode.getJsonElement().getAsJsonObject().add(entry.getKey(), entry.getValue());
+                                        }
+                                    } else if (jsonNode.getJsonElement().isJsonArray()) {
+                                        jsonNode.getJsonElement().getAsJsonArray().add(parsed);
+                                    } else {
+                                        JOptionPane.showMessageDialog(borderPane, "Cannot merge structural mismatch (e.g., Array into Object root payload).", "Error", JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
+                                    jsonNode.reloadChildren();
+                                    treeTableModel.fireNodeStructureChanged(jsonNode);
+                                    currentTreeTable.expandPath(path);
+                                } catch (Exception e) {
+                                    JOptionPane.showMessageDialog(borderPane, "Invalid JSON input:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -166,6 +283,10 @@ public class JsonToolPane implements ToolProvider {
         expandRecursiveItem.addActionListener(popupListener);
         collapseItem.addActionListener(popupListener);
         collapseRecursiveItem.addActionListener(popupListener);
+        addNodeItem.addActionListener(popupListener);
+        removeNodeItem.addActionListener(popupListener);
+        renameKeyItem.addActionListener(popupListener);
+        mergeJsonItem.addActionListener(popupListener);
 
         currentTreeTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -361,6 +482,25 @@ public class JsonToolPane implements ToolProvider {
             JsonNode child = (JsonNode) node.getChildAt(i);
             dfsSearch(child, currentPath.pathByAddingChild(child), term);
         }
+    }
+
+    private void exportJsonContent() {
+        Object root = treeTableModel.getRoot();
+        if (root instanceof JsonNode rootNode) {
+            JsonElement rootElement = rootNode.getJsonElement();
+            if (rootElement != null) {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                String formattedJson = gson.toJson(rootElement);
+                jsonInputArea.setText(formattedJson);
+                jsonInputArea.setCaretPosition(0);
+                
+                JOptionPane.showMessageDialog(borderPane,
+                    "JSON exported to the text area successfully.", "Export Success", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+        }
+        JOptionPane.showMessageDialog(borderPane,
+            "No valid JSON tree loaded to export.", "Export Warning", JOptionPane.WARNING_MESSAGE);
     }
 
     private void formatJsonContent() {
