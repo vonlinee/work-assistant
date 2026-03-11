@@ -10,6 +10,7 @@ import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
+import org.jdesktop.swingx.JXTreeTable;
 
 public final class SwingUtils {
 
@@ -72,6 +73,38 @@ public final class SwingUtils {
 	public static void expandAll(JTree tree) {
 		for (int i = 0; i < tree.getRowCount(); i++) {
 			tree.expandRow(i);
+		}
+	}
+
+	public static void expandNode(JXTreeTable treeTable, TreePath parent, boolean recursive) {
+		if (recursive) {
+			expandAll(treeTable, parent, true);
+		} else {
+			treeTable.expandPath(parent);
+		}
+	}
+
+	public static void collapseNode(JXTreeTable treeTable, TreePath parent, boolean recursive) {
+		if (recursive) {
+			expandAll(treeTable, parent, false);
+		} else {
+			treeTable.collapsePath(parent);
+		}
+	}
+
+	private static void expandAll(JXTreeTable treeTable, TreePath parent, boolean expand) {
+		TreeNode node = (TreeNode) parent.getLastPathComponent();
+		if (node.getChildCount() > 0) {
+			for (Enumeration<? extends TreeNode> e = node.children(); e.hasMoreElements(); ) {
+				TreeNode n = e.nextElement();
+				TreePath path = parent.pathByAddingChild(n);
+				expandAll(treeTable, path, expand);
+			}
+		}
+		if (expand) {
+			treeTable.expandPath(parent);
+		} else {
+			treeTable.collapsePath(parent);
 		}
 	}
 }

@@ -127,6 +127,90 @@ public class JsonToolPane implements ToolProvider {
 
         configPojoButton.addActionListener(e -> configureAndGeneratePojo());
         configSchemaButton.addActionListener(e -> configureAndGenerateSchema());
+
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem expandItem = new JMenuItem("Expand Node");
+        JMenuItem expandRecursiveItem = new JMenuItem("Expand Node (Recursively)");
+        JMenuItem collapseItem = new JMenuItem("Collapse Node");
+        JMenuItem collapseRecursiveItem = new JMenuItem("Collapse Node (Recursively)");
+
+        popupMenu.add(expandItem);
+        popupMenu.add(expandRecursiveItem);
+        popupMenu.add(collapseItem);
+        popupMenu.add(collapseRecursiveItem);
+
+        java.awt.event.ActionListener popupListener = ev -> {
+            int row = currentTreeTable.getSelectedRow();
+            if (row >= 0) {
+                TreePath path = currentTreeTable.getPathForRow(row);
+                if (path != null) {
+                    Object node = path.getLastPathComponent();
+                    if (node instanceof JsonNode jsonNode && !jsonNode.isLeaf()) {
+                        boolean expand = ev.getSource() == expandItem || ev.getSource() == expandRecursiveItem;
+                        boolean recursive = ev.getSource() == expandRecursiveItem || ev.getSource() == collapseRecursiveItem;
+
+                        // UI operations can take a while on massive JSON trees. Run asynchronously to prevent locking the EDT.
+                        SwingUtilities.invokeLater(() -> {
+                            if (expand) {
+                                org.assistant.util.SwingUtils.expandNode(currentTreeTable, path, recursive);
+                            } else {
+                                org.assistant.util.SwingUtils.collapseNode(currentTreeTable, path, recursive);
+                            }
+                        });
+                    }
+                }
+            }
+        };
+
+        expandItem.addActionListener(popupListener);
+        expandRecursiveItem.addActionListener(popupListener);
+        collapseItem.addActionListener(popupListener);
+        collapseRecursiveItem.addActionListener(popupListener);
+
+        currentTreeTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                    int row = currentTreeTable.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        TreePath path = currentTreeTable.getPathForRow(row);
+                        if (path != null) {
+                            Object node = path.getLastPathComponent();
+                            if (node instanceof JsonNode jsonNode && !jsonNode.isLeaf()) {
+                                boolean recursive = e.isShiftDown();
+                                SwingUtilities.invokeLater(() -> {
+                                    if (currentTreeTable.isExpanded(path)) {
+                                        org.assistant.util.SwingUtils.collapseNode(currentTreeTable, path, recursive);
+                                    } else {
+                                        org.assistant.util.SwingUtils.expandNode(currentTreeTable, path, recursive);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                showPopup(e);
+            }
+
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                showPopup(e);
+            }
+
+            private void showPopup(java.awt.event.MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    int row = currentTreeTable.rowAtPoint(e.getPoint());
+                    if (row >= 0 && row < currentTreeTable.getRowCount()) {
+                        currentTreeTable.setRowSelectionInterval(row, row);
+                        popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+            }
+        });
     }
 
     private void loadJsonFile() {
