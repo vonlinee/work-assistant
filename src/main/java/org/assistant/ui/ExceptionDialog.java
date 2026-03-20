@@ -1,5 +1,7 @@
 package org.assistant.ui;
 
+import org.assistant.util.SwingUtils;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
@@ -93,7 +95,6 @@ public class ExceptionDialog extends JDialog {
 		stackTracePanel.add(stackScrollPane, BorderLayout.CENTER);
 
 		// 默认折叠堆栈面板
-		stackTracePanel.setVisible(false);
 		mainPanel.add(stackTracePanel, BorderLayout.CENTER);
 
 		// 4. 底部：操作按钮（展开/折叠、复制、关闭）
@@ -168,17 +169,27 @@ public class ExceptionDialog extends JDialog {
 	 * 复制异常全部信息到剪贴板
 	 */
 	private void copyExceptionInfo(Throwable throwable) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("异常类型：").append(throwable.getClass().getName()).append("\n");
-		sb.append("异常消息：").append(throwable.getMessage()).append("\n\n");
-		sb.append("堆栈跟踪：\n").append(getStackTraceAsString(throwable));
+		String sb = "异常类型：" + throwable.getClass().getName() + "\n" +
+								"异常消息：" + throwable.getMessage() + "\n\n" +
+								"堆栈跟踪：\n" + getStackTraceAsString(throwable);
 
 		// 复制到剪贴板
-		StringSelection selection = new StringSelection(sb.toString());
+		StringSelection selection = new StringSelection(sb);
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
-
 		// 提示复制成功
 		JOptionPane.showMessageDialog(this, "异常信息已复制到剪贴板！", "提示", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	public static void run(JComponent parent, Runnable runnable) {
+		try {
+			runnable.run();
+		} catch (Throwable throwable) {
+			showException(SwingUtils.getParentJFrame(parent), throwable.getMessage(), throwable);
+		}
+	}
+
+	public static void showError(JComponent parent, Throwable throwable) {
+		showException(SwingUtils.getParentFrame(parent), throwable.getMessage(), throwable);
 	}
 
 	/**

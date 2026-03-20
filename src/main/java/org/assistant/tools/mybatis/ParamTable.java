@@ -3,11 +3,16 @@ package org.assistant.tools.mybatis;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
+import org.assistant.ui.ExceptionDialog;
 import org.assistant.ui.controls.table.SwingTreeTable;
 import org.assistant.ui.pane.BorderPane;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ParamTable extends BorderPane {
 
@@ -41,7 +46,14 @@ public class ParamTable extends BorderPane {
 		}
 		treeTable.removeAllNodes();
 		// Get BoundSql with null parameter to see required mappings
-		BoundSql boundSql = ms.getBoundSql(null);
+		BoundSql boundSql;
+		try {
+			boundSql = ms.getBoundSql(null);
+		} catch (Exception e) {
+			ExceptionDialog.showError(this, e);
+			return;
+		}
+
 		List<ParameterMapping> mappings = boundSql.getParameterMappings();
 
 		if (mappings != null) {
@@ -54,7 +66,7 @@ public class ParamTable extends BorderPane {
 				Class<?> javaType = pm.getJavaType();
 				if (javaType != null) {
 					if (Number.class.isAssignableFrom(javaType) || javaType.isPrimitive()
-							&& !javaType.equals(boolean.class) && !javaType.equals(char.class)) {
+																												 && !javaType.equals(boolean.class) && !javaType.equals(char.class)) {
 						dataType = ParamDataType.NUMERIC;
 					} else if (javaType.equals(Boolean.class) || javaType.equals(boolean.class)) {
 						dataType = ParamDataType.BOOLEAN;
@@ -73,7 +85,7 @@ public class ParamTable extends BorderPane {
 		return (ParamNode) treeTable.getTreeTableModel().getRoot();
 	}
 
-	public void importParameters(java.util.Map<String, String> params, boolean override) {
+	public void importParameters(Map<String, String> params, boolean override) {
 		if (params == null || params.isEmpty()) {
 			return;
 		}
@@ -83,7 +95,7 @@ public class ParamTable extends BorderPane {
 			if (override) {
 				clearValues(root);
 			}
-			for (java.util.Map.Entry<String, String> entry : params.entrySet()) {
+			for (Map.Entry<String, String> entry : params.entrySet()) {
 				String key = entry.getKey();
 				String mapValue = entry.getValue();
 
@@ -108,8 +120,8 @@ public class ParamTable extends BorderPane {
 	}
 
 	private ParamNode getOrCreatePath(ParamNode parent, String fullKey, boolean mergeExistingOnly) {
-		java.util.List<String> parts = new java.util.ArrayList<>();
-		java.util.regex.Matcher m = java.util.regex.Pattern.compile("([^\\[\\]\\.]+)|(\\[[0-9]+\\])").matcher(fullKey);
+		List<String> parts = new ArrayList<>();
+		Matcher m = Pattern.compile("([^\\[\\]\\.]+)|(\\[[0-9]+\\])").matcher(fullKey);
 		while (m.find()) {
 			parts.add(m.group());
 		}

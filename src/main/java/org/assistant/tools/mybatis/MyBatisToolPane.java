@@ -1,21 +1,22 @@
 package org.assistant.tools.mybatis;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.assistant.tools.ToolProvider;
-
+import org.assistant.ui.ExceptionDialog;
 import org.assistant.ui.controls.table.SwingTreeTable;
 import org.assistant.ui.pane.BorderPane;
 import org.assistant.util.Messages;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
-import java.awt.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -26,8 +27,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import java.awt.*;
 import java.io.File;
 import java.io.StringWriter;
 import java.nio.file.Path;
@@ -218,9 +218,9 @@ public class MyBatisToolPane implements ToolProvider {
 
 	private void scanProject() {
 		String path = pathField.getText();
-		if (path == null || path.trim().isEmpty()) {
+		if (StringUtils.isBlank(path)) {
 			JOptionPane.showMessageDialog(borderPane, "Please enter a project path.", "Error",
-					JOptionPane.ERROR_MESSAGE);
+				JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
@@ -235,10 +235,9 @@ public class MyBatisToolPane implements ToolProvider {
 
 			// Update UI
 			updateTreeTable(groupedStatements);
-
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(borderPane, "Error scanning project: " + ex.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
+				JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -331,10 +330,10 @@ public class MyBatisToolPane implements ToolProvider {
 							if (pNode != null && pNode.getValue() != null && !pNode.getValue().isEmpty()) {
 								try {
 									ParamDataType enumType = ParamDataType.asMap()
-											.getOrDefault(pNode.getDataType().toUpperCase(), ParamDataType.STRING);
+										.getOrDefault(pNode.getDataType().toUpperCase(), ParamDataType.STRING);
 									String val = enumType.quote(pNode.getValue());
 									sql = sql.replaceFirst("\\?",
-											val != null ? java.util.regex.Matcher.quoteReplacement(val) : "null");
+										val != null ? java.util.regex.Matcher.quoteReplacement(val) : "null");
 								} catch (Exception ignored) {
 								}
 							}
@@ -352,7 +351,7 @@ public class MyBatisToolPane implements ToolProvider {
 	}
 
 	private void extractParams(ParamNode node, String prefix, Map<String, Object> paramMap,
-			List<ParamNode> flattenedNodes) {
+														 List<ParamNode> flattenedNodes) {
 		String currentPath = prefix;
 		if (currentPath.isEmpty()) {
 			currentPath = node.getKey();
@@ -369,8 +368,8 @@ public class MyBatisToolPane implements ToolProvider {
 			flattenedNodes.add(node);
 			try {
 				ParamDataType enumType = ParamDataType.asMap()
-						.getOrDefault(node.getDataType() != null ? node.getDataType().toUpperCase() : "STRING",
-								ParamDataType.STRING);
+					.getOrDefault(node.getDataType() != null ? node.getDataType().toUpperCase() : "STRING",
+						ParamDataType.STRING);
 				Object val = enumType.parseObject(node.getValue(), null);
 				paramMap.put(currentPath, val);
 			} catch (Exception ignored) {
@@ -472,7 +471,7 @@ public class MyBatisToolPane implements ToolProvider {
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value,
-				boolean isSelected, boolean hasFocus, int row, int column) {
+																									 boolean isSelected, boolean hasFocus, int row, int column) {
 
 			if (isSelected) {
 				panel.setBackground(table.getSelectionBackground());
@@ -498,29 +497,29 @@ public class MyBatisToolPane implements ToolProvider {
 					label.setBackground(COLOR_SELECT);
 					label.setForeground(TEXT_SELECT);
 					label.setBorder(BorderFactory.createCompoundBorder(
-							BorderFactory.createLineBorder(BORDER_SELECT, 1, true),
-							BorderFactory.createEmptyBorder(2, 6, 2, 6)));
+						BorderFactory.createLineBorder(BORDER_SELECT, 1, true),
+						BorderFactory.createEmptyBorder(2, 6, 2, 6)));
 					break;
 				case "INSERT":
 					label.setBackground(COLOR_INSERT);
 					label.setForeground(TEXT_INSERT);
 					label.setBorder(BorderFactory.createCompoundBorder(
-							BorderFactory.createLineBorder(BORDER_INSERT, 1, true),
-							BorderFactory.createEmptyBorder(2, 6, 2, 6)));
+						BorderFactory.createLineBorder(BORDER_INSERT, 1, true),
+						BorderFactory.createEmptyBorder(2, 6, 2, 6)));
 					break;
 				case "UPDATE":
 					label.setBackground(COLOR_UPDATE);
 					label.setForeground(TEXT_UPDATE);
 					label.setBorder(BorderFactory.createCompoundBorder(
-							BorderFactory.createLineBorder(BORDER_UPDATE, 1, true),
-							BorderFactory.createEmptyBorder(2, 6, 2, 6)));
+						BorderFactory.createLineBorder(BORDER_UPDATE, 1, true),
+						BorderFactory.createEmptyBorder(2, 6, 2, 6)));
 					break;
 				case "DELETE":
 					label.setBackground(COLOR_DELETE);
 					label.setForeground(TEXT_DELETE);
 					label.setBorder(BorderFactory.createCompoundBorder(
-							BorderFactory.createLineBorder(BORDER_DELETE, 1, true),
-							BorderFactory.createEmptyBorder(2, 6, 2, 6)));
+						BorderFactory.createLineBorder(BORDER_DELETE, 1, true),
+						BorderFactory.createEmptyBorder(2, 6, 2, 6)));
 					break;
 				default:
 					label.setOpaque(false);
