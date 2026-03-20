@@ -220,12 +220,24 @@
 			<artifactId>rsyntaxtextarea</artifactId>
 			<version>3.3.3</version>
 		</dependency>
-
+		<!-- 可选：搭配RSTAUI增强编辑器功能（如行号、代码折叠） -->
+		<!-- Source: https://mvnrepository.com/artifact/com.fifesoft/rstaui -->
+		<dependency>
+			<groupId>com.fifesoft</groupId>
+			<artifactId>rstaui</artifactId>
+			<version>3.3.2</version>
+			<scope>compile</scope>
+		</dependency>
 		<!-- Source: https://mvnrepository.com/artifact/org.swinglabs/swingx -->
 		<dependency>
 			<groupId>org.swinglabs</groupId>
 			<artifactId>swingx</artifactId>
 			<version>1.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>me.friwi</groupId>
+			<artifactId>jcefmaven</artifactId>
+			<version>143.0.14</version>
 		</dependency>
 	</dependencies>
 
@@ -245,6 +257,13 @@
 					<include>**/*.yml</include>
 					<include>**/*.xml</include>
 					<include>**/*.vm</include>
+					<include>**/*.js</include>
+					<include>**/*.css</include>
+					<include>**/*.html</include>
+					<include>**/*.md</include>
+					<include>**/*.ts</include>
+					<include>**/*.js.map</include>
+					<include>**/*.ttf</include>
 				</includes>
 			</resource>
 		</resources>
@@ -354,13 +373,42 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-
+		<!-- 中央仓库（阿里云镜像） -->
+		<repository>
+			<id>aliyunmaven</id>
+			<name>阿里云中央仓库</name>
+			<url>https://maven.aliyun.com/repository/public</url>
+			<!-- 是否启用发布版依赖（默认true） -->
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<!-- 是否启用快照版依赖（默认false，快照版是开发中版本） -->
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
 		<!--https://github.com/hervegirod/fxsvgimage-->
 		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
+
+	<!-- 插件仓库（Maven插件的下载地址，建议和依赖仓库一致） -->
+	<pluginRepositories>
+		<pluginRepository>
+			<id>aliyunmaven</id>
+			<name>阿里云插件仓库</name>
+			<url>https://maven.aliyun.com/repository/public</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
 	<profiles>
 		<profile>
 			<id>native-package</id>
