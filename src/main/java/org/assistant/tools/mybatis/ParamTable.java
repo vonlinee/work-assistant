@@ -3,6 +3,7 @@ package org.assistant.tools.mybatis;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
+import org.apache.ibatis.mapping.SqlSource;
 import org.assistant.ui.ExceptionDialog;
 import org.assistant.ui.controls.table.SwingTreeTable;
 import org.assistant.ui.pane.BorderPane;
@@ -55,10 +56,18 @@ public class ParamTable extends BorderPane {
 		}
 		final ParamNode root = getRootNode();
 
-		fillParameterNodes(boundSql, root);
+		fillParameterNodes1(ms.getSqlSource(), root);
 
 		treeTable.updateUI();
 		treeTable.expandAll();
+	}
+
+	private void fillParameterNodes1(SqlSource sqlSource, ParamNode root) {
+		SqlNodeParamParser sqlNodeParamParser = new SqlNodeParamParser();
+		List<ParamNode> paramNodes = sqlNodeParamParser.parseToFlatParamNodeList(sqlSource);
+		List<ParamNode> paramNodes1 = sqlNodeParamParser.convertFlatListToTree(paramNodes);
+
+		SwingX.replaceRootChildNodes(root, paramNodes1, treeTableModel);
 	}
 
 	private void fillParameterNodes(BoundSql boundSql, ParamNode root) {

@@ -1,5 +1,7 @@
 package org.assistant.tools.mybatis;
 
+import org.apache.ibatis.builder.StaticSqlSource;
+import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.scripting.xmltags.*;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.session.Configuration;
@@ -26,6 +28,20 @@ public class SqlNodeParamParser {
             "isEmpty", "isNotEmpty", "size", "length", "contains"
     ));
 
+	public List<ParamNode> parseToFlatParamNodeList(SqlSource sqlSource) {
+		Configuration configuration = new Configuration();
+		if (sqlSource instanceof StaticSqlSource sss) {
+			String sql = (String) getFieldValue(sss, "sql");
+			Map<String, ParamMeta> paramMetaMap = new LinkedHashMap<>();
+			parsePlaceholderParams(sql, paramMetaMap, configuration);
+			return convertParamNodes(paramMetaMap);
+		} else if (sqlSource instanceof DynamicSqlSource dss) {
+			SqlNode sqlNode = (SqlNode) getFieldValue(dss, "rootSqlNode");
+			return parseToFlatParamNodeList(sqlNode, configuration);
+		}
+		return new ArrayList<>();
+	}
+
     // -------------------------- 第一步：解析为扁平 ParamNode 列表（展开形式） --------------------------
     /**
      * 解析 SqlNode 为扁平 ParamNode 列表（参数名为展开形式：如 user.name）
@@ -36,19 +52,22 @@ public class SqlNodeParamParser {
     public List<ParamNode> parseToFlatParamNodeList(SqlNode rootSqlNode, @Nullable Configuration configuration) {
         Map<String, ParamMeta> paramMetaMap = new LinkedHashMap<>();
         traverseSqlNode(rootSqlNode, paramMetaMap, configuration);
-
         // 转换为扁平 ParamNode 列表（参数名为展开形式：如 user.name）
-        List<ParamNode> flatList = new ArrayList<>();
-        for (Map.Entry<String, ParamMeta> entry : paramMetaMap.entrySet()) {
-            String fullKey = entry.getKey();
-            ParamMeta meta = entry.getValue();
-            ParamNode node = new ParamNode(fullKey, meta.value, meta.dataType);
-            node.setJdbcType(meta.jdbcType);
-            node.setParameterMapping(meta.parameterMapping);
-            flatList.add(node);
-        }
-        return flatList;
+				return convertParamNodes(paramMetaMap);
     }
+
+		private List<ParamNode> convertParamNodes(Map<String, ParamMeta> paramMetaMap) {
+			List<ParamNode> flatList = new ArrayList<>();
+			for (Map.Entry<String, ParamMeta> entry : paramMetaMap.entrySet()) {
+				String fullKey = entry.getKey();
+				ParamMeta meta = entry.getValue();
+				ParamNode node = new ParamNode(fullKey, meta.value, meta.dataType);
+				node.setJdbcType(meta.jdbcType);
+				node.setParameterMapping(meta.parameterMapping);
+				flatList.add(node);
+			}
+			return flatList;
+		}
 
     // -------------------------- 第二步：工具方法 - 扁平列表转树形结构 --------------------------
     /**
@@ -61,17 +80,14 @@ public class SqlNodeParamParser {
         Map<String, ParamNode> nodeCache = new HashMap<>();
         // 根节点列表（无父节点的顶级参数，如 user、userId）
         List<ParamNode> rootNodes = new ArrayList<>();
-
         for (ParamNode flatNode : flatParamNodes) {
             String fullKey = flatNode.getKey();
             if (fullKey == null || fullKey.isEmpty()) {
                 continue;
             }
-
             // 拆分参数名（如 user.name → ["user", "name"]）
             String[] keySegments = fullKey.split("\\.");
             ParamNode parentNode = null;
-
             // 逐层构建嵌套节点
             for (int i = 0; i < keySegments.length; i++) {
                 String segment = keySegments[i];
@@ -82,7 +98,8 @@ public class SqlNodeParamParser {
                 if (currentNode == null) {
                     // 叶子节点（最后一层）：复用扁平节点的所有属性
                     if (i == keySegments.length - 1) {
-                        currentNode = new ParamNode(currentFullKey, flatNode.getValue(), flatNode.getDataType());
+                        // currentNode = new ParamNode(currentFullKey, flatNode.getValue(), flatNode.getDataType());
+                        currentNode = new ParamNode(keySegments[keySegments.length - 1], flatNode.getValue(), flatNode.getDataType());
                         currentNode.setJdbcType(flatNode.getJdbcType());
                         currentNode.setParameterMapping(flatNode.getParameterMapping());
                     }
@@ -102,7 +119,6 @@ public class SqlNodeParamParser {
                 parentNode = currentNode;
             }
         }
-
         return rootNodes;
     }
 
@@ -112,6 +128,7 @@ public class SqlNodeParamParser {
 
         try {
             if (sqlNode instanceof MixedSqlNode) {
+							@SuppressWarnings("unchecked")
                 List<SqlNode> children = (List<SqlNode>) getFieldValue(sqlNode, "contents");
                 for (SqlNode child : children) {
                     traverseSqlNode(child, paramMetaMap, configuration);
@@ -141,6 +158,7 @@ public class SqlNodeParamParser {
             } else if (sqlNode instanceof WhereSqlNode || sqlNode instanceof TrimSqlNode || sqlNode instanceof SetSqlNode) {
                 traverseSqlNode((SqlNode) getFieldValue(sqlNode, "contents"), paramMetaMap, configuration);
             } else if (sqlNode instanceof ChooseSqlNode) {
+							@SuppressWarnings("unchecked")
                 List<SqlNode> ifNodes = (List<SqlNode>) getFieldValue(sqlNode, "ifSqlNodes");
                 SqlNode otherwiseNode = (SqlNode) getFieldValue(sqlNode, "otherwiseSqlNode");
                 for (SqlNode ifNode : ifNodes) traverseSqlNode(ifNode, paramMetaMap, configuration);
@@ -169,7 +187,9 @@ public class SqlNodeParamParser {
             if (configuration != null) {
                 try {
                     meta.parameterMapping = new ParameterMapping.Builder(configuration, paramKey, Object.class).build();
-                } catch (Exception e) {}
+                } catch (Exception e) {
+									throw new RuntimeException(e);
+								}
             }
             paramMetaMap.putIfAbsent(paramKey, meta);
         }
@@ -189,20 +209,26 @@ public class SqlNodeParamParser {
         }
     }
 
-    private Object getFieldValue(Object obj, String fieldName) throws Exception {
-        if (obj == null || fieldName == null) return null;
-        Class<?> clazz = obj.getClass();
-        Field field = null;
-        while (clazz != null && field == null) {
-            try {
-                field = clazz.getDeclaredField(fieldName);
-            } catch (NoSuchFieldException e) {
-                clazz = clazz.getSuperclass();
-            }
-        }
-        if (field == null) throw new NoSuchFieldException("字段不存在：" + fieldName);
-        field.setAccessible(true);
-        return field.get(obj);
+    private Object getFieldValue(Object obj, String fieldName) {
+        if (obj == null || fieldName == null) {
+					return null;
+				}
+				try {
+					Class<?> clazz = obj.getClass();
+					Field field = null;
+					while (clazz != null && field == null) {
+						try {
+							field = clazz.getDeclaredField(fieldName);
+						} catch (NoSuchFieldException e) {
+							clazz = clazz.getSuperclass();
+						}
+					}
+					if (field == null) throw new NoSuchFieldException("字段不存在：" + fieldName);
+					field.setAccessible(true);
+					return field.get(obj);
+				} catch (Throwable throwable) {
+					throw new RuntimeException("获取字段值失败：" + fieldName, throwable);
+				}
     }
 
     private String extractJdbcType(String content) {
