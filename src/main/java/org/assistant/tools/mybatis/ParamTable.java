@@ -53,11 +53,17 @@ public class ParamTable extends BorderPane {
 			ExceptionDialog.showError(this, e);
 			return;
 		}
+		final ParamNode root = getRootNode();
 
+		fillParameterNodes(boundSql, root);
+
+		treeTable.updateUI();
+		treeTable.expandAll();
+	}
+
+	private void fillParameterNodes(BoundSql boundSql, ParamNode root) {
 		List<ParameterMapping> mappings = boundSql.getParameterMappings();
-
 		if (mappings != null) {
-			ParamNode root = getRootNode();
 			for (ParameterMapping pm : mappings) {
 				ParamNode node = getOrCreatePath(root, pm.getProperty(), false);
 				node.setJdbcType(pm.getJdbcType() != null ? pm.getJdbcType().name() : "");
@@ -76,9 +82,6 @@ public class ParamTable extends BorderPane {
 				node.setParameterMapping(pm);
 			}
 		}
-
-		treeTable.updateUI();
-		treeTable.expandAll();
 	}
 
 	public ParamNode getRootNode() {
@@ -121,17 +124,13 @@ public class ParamTable extends BorderPane {
 
 	private ParamNode getOrCreatePath(ParamNode parent, String fullKey, boolean mergeExistingOnly) {
 		List<String> parts = new ArrayList<>();
-		Matcher m = Pattern.compile("([^\\[\\]\\.]+)|(\\[[0-9]+\\])").matcher(fullKey);
+		Matcher m = Pattern.compile("([^\\[\\].]+)|(\\[[0-9]+])").matcher(fullKey);
 		while (m.find()) {
 			parts.add(m.group());
 		}
-
 		ParamNode current = parent;
-
-		for (int i = 0; i < parts.size(); i++) {
-			String part = parts.get(i);
+		for (String part : parts) {
 			ParamNode child = findChildByKey(current, part);
-
 			if (child == null) {
 				// If we are in merge mode, we don't automatically create undefined nested
 				// properties
@@ -144,7 +143,6 @@ public class ParamTable extends BorderPane {
 				child.setDataType(ParamDataType.STRING.name());
 				treeTableModel.insertNodeInto(child, current, current.getChildCount());
 			}
-
 			current = child;
 		}
 		return current;

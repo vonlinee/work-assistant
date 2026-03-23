@@ -15,6 +15,14 @@ import java.util.Map;
  */
 public enum ParamDataType {
 
+	BASIC {
+
+	}, OBJECT_PROPERTY{
+
+	}, COLLECTION {
+
+	},
+
   /**
    * 数值类型
    */
@@ -197,7 +205,7 @@ public enum ParamDataType {
   /**
    * 未知数据类型
    */
-  UNKNOWN {
+	UNKNOWN {
   };
 
   public static String[] names() {

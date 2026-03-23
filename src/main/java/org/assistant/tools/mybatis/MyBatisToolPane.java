@@ -1,6 +1,7 @@
 package org.assistant.tools.mybatis;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.assistant.tools.ToolProvider;
 import org.assistant.ui.ExceptionDialog;
@@ -322,7 +323,7 @@ public class MyBatisToolPane implements ToolProvider {
 							extractParams((ParamNode) rootNode.getChildAt(i), "", paramMap, flattenedNodes);
 						}
 					}
-					org.apache.ibatis.mapping.BoundSql boundSql = ms.getBoundSql(paramMap);
+					BoundSql boundSql = ms.getBoundSql(paramMap);
 					String sql = boundSql.getSql();
 					// Format SQL with literal parameters if possible (basic replacement for now)
 					if (!flattenedNodes.isEmpty()) {

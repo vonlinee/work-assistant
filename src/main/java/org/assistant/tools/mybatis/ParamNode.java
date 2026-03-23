@@ -6,8 +6,6 @@ import org.apache.ibatis.mapping.ParameterMapping;
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-
 @Setter
 @Getter
 public class ParamNode extends DefaultMutableTreeTableNode {
