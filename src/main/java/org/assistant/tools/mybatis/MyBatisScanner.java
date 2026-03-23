@@ -6,7 +6,6 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.scripting.LanguageDriver;
-import org.apache.ibatis.scripting.defaults.RawSqlSource;
 import org.apache.ibatis.scripting.xmltags.DynamicSqlSource;
 import org.apache.ibatis.scripting.xmltags.MixedSqlNode;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
@@ -20,6 +19,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -146,6 +146,28 @@ public class MyBatisScanner {
 			}
 		}
 		return result;
+	}
+
+	public MyBatisNode convertToTree(Map<File, List<MappedStatement>> groupedStatements) {
+		MyBatisNode root = new MyBatisNode("Root", "", "");
+		for (Map.Entry<File, List<MappedStatement>> entry : groupedStatements.entrySet()) {
+			File file = entry.getKey();
+			List<MappedStatement> statements = entry.getValue();
+			MyBatisNode fileNode = new MyBatisNode(file.getName(), "", file.getAbsolutePath());
+			root.addChild(fileNode);
+			for (MappedStatement ms : statements) {
+				String fullId = ms.getId();
+				String shortId = fullId;
+				int lastDot = fullId.lastIndexOf('.');
+				if (lastDot > 0) {
+					shortId = fullId.substring(lastDot + 1);
+				}
+				MyBatisNode msNode = new MyBatisNode(shortId, ms.getSqlCommandType().name(), "");
+				msNode.setMappedStatement(ms);
+				fileNode.addChild(msNode);
+			}
+		}
+		return root;
 	}
 
 	private static class MyConfiguration extends Configuration {
@@ -283,5 +305,13 @@ public class MyBatisScanner {
 			// 2. 当前类未找到 → 递归查找父类
 			return findFieldInHierarchy(clazz.getSuperclass(), fieldName);
 		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		MyBatisScanner scanner = new MyBatisScanner(Paths.get("D:\\Develop\\Code\\devpl-main\\devpl-backend"));
+		// Scan and parse
+		Map<File, List<MappedStatement>> groupedStatements = scanner.scanAndParseGrouped();
+
+		MyBatisNode root = scanner.convertToTree(groupedStatements);
 	}
 }

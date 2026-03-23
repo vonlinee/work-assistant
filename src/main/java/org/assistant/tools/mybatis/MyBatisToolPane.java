@@ -243,29 +243,7 @@ public class MyBatisToolPane implements ToolProvider {
 	}
 
 	private void updateTreeTable(Map<File, List<MappedStatement>> groupedStatements) {
-		MyBatisNode root = new MyBatisNode("Root", "", "");
-
-		for (Map.Entry<File, List<MappedStatement>> entry : groupedStatements.entrySet()) {
-			File file = entry.getKey();
-			List<MappedStatement> statements = entry.getValue();
-
-			MyBatisNode fileNode = new MyBatisNode(file.getName(), "", file.getAbsolutePath());
-			root.addChild(fileNode);
-
-			for (MappedStatement ms : statements) {
-				String fullId = ms.getId();
-				String shortId = fullId;
-				int lastDot = fullId.lastIndexOf('.');
-				if (lastDot > 0) {
-					shortId = fullId.substring(lastDot + 1);
-				}
-
-				MyBatisNode msNode = new MyBatisNode(shortId, ms.getSqlCommandType().name(), "");
-				msNode.setMappedStatement(ms);
-				fileNode.addChild(msNode);
-			}
-		}
-
+		MyBatisNode root = scanner.convertToTree(groupedStatements);
 		treeTableModel.setRoot(root);
 		treeTable.updateUI();
 		// treeTable.expandAll();

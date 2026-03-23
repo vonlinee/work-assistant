@@ -158,8 +158,33 @@ public class SqlNodeParamParser {
                 ParamMeta meta = new ParamMeta();
                 meta.value = collection;
                 meta.dataType = ParamDataType.COLLECTION.name();
-                paramMetaMap.put(collection, meta);
-                traverseSqlNode((SqlNode) getFieldValue(sqlNode, "contents"), paramMetaMap, configuration);
+							paramMetaMap.put(collection, meta);
+							String itemExpression = (String) getFieldValue(sqlNode, "item");
+							HashMap<String, ParamMeta> tmp = new HashMap<>();
+							traverseSqlNode((SqlNode) getFieldValue(sqlNode, "contents"), tmp, configuration);
+
+							List<ParamMeta> paramMetaList = new ArrayList<>();
+							for (Map.Entry<String, ParamMeta> entry : tmp.entrySet()) {
+								String key = entry.getKey();
+								if (key.startsWith(itemExpression)) {
+									paramMetaList.add(entry.getValue());
+								}
+							}
+							if (!paramMetaList.isEmpty()) {
+								for (ParamMeta paramMeta : paramMetaList) {
+									ParamMeta paramMeta1 = new ParamMeta();
+									if (paramMeta.value.contains(".")) {
+										paramMeta1.value = collection + "[0]" + paramMeta.value.replace("item", "");
+										paramMetaMap.put(paramMeta1.value, paramMeta1);
+
+										paramMetaMap.remove(collection);
+									} else {
+										// 集合元素类型为简单类型
+										paramMeta1.value = paramMeta.value.replace("item", "");
+										meta.componentType = ParamDataType.STRING.name();
+									}
+								}
+							}
             } else if (sqlNode instanceof VarDeclSqlNode) {
                 String name = (String) getFieldValue(sqlNode, "name");
                 String expression = (String) getFieldValue(sqlNode, "expression");
@@ -173,7 +198,7 @@ public class SqlNodeParamParser {
             } else if (sqlNode instanceof ChooseSqlNode) {
 							@SuppressWarnings("unchecked")
                 List<SqlNode> ifNodes = (List<SqlNode>) getFieldValue(sqlNode, "ifSqlNodes");
-                SqlNode otherwiseNode = (SqlNode) getFieldValue(sqlNode, "otherwiseSqlNode");
+                SqlNode otherwiseNode = (SqlNode) getFieldValue(sqlNode, "defaultSqlNode");
                 for (SqlNode ifNode : ifNodes) traverseSqlNode(ifNode, paramMetaMap, configuration);
                 traverseSqlNode(otherwiseNode, paramMetaMap, configuration);
             }
@@ -272,10 +297,12 @@ public class SqlNodeParamParser {
 
     // -------------------------- 内部类 & 枚举 --------------------------
     private static class ParamMeta {
+			String property;
         String value;
         String jdbcType;
         String dataType;
         ParameterMapping parameterMapping;
+				String componentType;
     }
 
     // -------------------------- 测试示例 --------------------------
