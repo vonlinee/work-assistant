@@ -1,11 +1,15 @@
 package org.assistant.tools.mybatis;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+@Setter
+@Getter
 public class MyBatisNode extends DefaultMutableTreeTableNode {
 
     // For TreeTable Structure
@@ -30,35 +34,4 @@ public class MyBatisNode extends DefaultMutableTreeTableNode {
         this.add(child);
     }
 
-    public String getIdOrNamespace() {
-        return idOrNamespace;
-    }
-
-    public void setIdOrNamespace(String idOrNamespace) {
-        this.idOrNamespace = idOrNamespace;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getSourceFile() {
-        return sourceFile;
-    }
-
-    public void setSourceFile(String sourceFile) {
-        this.sourceFile = sourceFile;
-    }
-
-    public MappedStatement getMappedStatement() {
-        return mappedStatement;
-    }
-
-    public void setMappedStatement(MappedStatement mappedStatement) {
-        this.mappedStatement = mappedStatement;
-    }
 }

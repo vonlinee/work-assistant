@@ -1,7 +1,9 @@
 package org.assistant.tools.mybatis;
 
 import org.apache.ibatis.builder.StaticSqlSource;
+import org.apache.ibatis.builder.annotation.ProviderSqlSource;
 import org.apache.ibatis.mapping.SqlSource;
+import org.apache.ibatis.scripting.defaults.RawSqlSource;
 import org.apache.ibatis.scripting.xmltags.*;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.session.Configuration;
@@ -28,8 +30,10 @@ public class SqlNodeParamParser {
             "isEmpty", "isNotEmpty", "size", "length", "contains"
     ));
 
-	public List<ParamNode> parseToFlatParamNodeList(SqlSource sqlSource) {
-		Configuration configuration = new Configuration();
+		public List<ParamNode> parseToFlatParamNodeList(SqlSource sqlSource) {
+			return parseToFlatParamNodeList(sqlSource, new Configuration());
+		}
+	private List<ParamNode> parseToFlatParamNodeList(SqlSource sqlSource, Configuration configuration) {
 		if (sqlSource instanceof StaticSqlSource sss) {
 			String sql = (String) getFieldValue(sss, "sql");
 			Map<String, ParamMeta> paramMetaMap = new LinkedHashMap<>();
@@ -38,6 +42,15 @@ public class SqlNodeParamParser {
 		} else if (sqlSource instanceof DynamicSqlSource dss) {
 			SqlNode sqlNode = (SqlNode) getFieldValue(dss, "rootSqlNode");
 			return parseToFlatParamNodeList(sqlNode, configuration);
+		} else if (sqlSource instanceof RawSqlSource rss) {
+			/**
+			 * RawSqlSource 的参数是在解析阶段就会转为预编译占位符
+			 * @see XMLScriptBuilder#parseScriptNode()
+			 */
+			SqlSource delegateSqlSource = (SqlSource) getFieldValue(rss, "sqlSource");
+			return parseToFlatParamNodeList(delegateSqlSource, configuration);
+		} else if (sqlSource instanceof ProviderSqlSource) {
+			throw new IllegalArgumentException("ProviderSqlSource is not supported");
 		}
 		return new ArrayList<>();
 	}
@@ -141,7 +154,7 @@ public class SqlNodeParamParser {
                 parseOgnlParams(test, paramMetaMap);
                 traverseSqlNode((SqlNode) getFieldValue(sqlNode, "contents"), paramMetaMap, configuration);
             } else if (sqlNode instanceof ForEachSqlNode) {
-                String collection = (String) getFieldValue(sqlNode, "collection");
+                String collection = (String) getFieldValue(sqlNode, "collectionExpression");
                 ParamMeta meta = new ParamMeta();
                 meta.value = collection;
                 meta.dataType = ParamDataType.COLLECTION.name();
@@ -153,7 +166,7 @@ public class SqlNodeParamParser {
                 parseOgnlParams(expression, paramMetaMap);
                 ParamMeta meta = new ParamMeta();
                 meta.value = name;
-                meta.dataType = ParamDataType.BASIC.name();
+                meta.dataType = ParamDataType.STRING.name();
                 paramMetaMap.put(name, meta);
             } else if (sqlNode instanceof WhereSqlNode || sqlNode instanceof TrimSqlNode || sqlNode instanceof SetSqlNode) {
                 traverseSqlNode((SqlNode) getFieldValue(sqlNode, "contents"), paramMetaMap, configuration);
@@ -242,9 +255,9 @@ public class SqlNodeParamParser {
         } else if (context.contains("!=") || context.contains("==") || context.contains("and") || context.contains("or")) {
             return ParamDataType.BOOLEAN.name();
         } else if (paramKey.contains(".")) {
-            return ParamDataType.OBJECT_PROPERTY.name();
+            return ParamDataType.STRING.name();
         } else {
-            return ParamDataType.BASIC.name();
+            return ParamDataType.STRING.name();
         }
     }
 

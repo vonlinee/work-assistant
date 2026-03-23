@@ -15,11 +15,7 @@ import java.util.Map;
  */
 public enum ParamDataType {
 
-	BASIC {
-
-	}, OBJECT_PROPERTY{
-
-	}, COLLECTION {
+	COLLECTION {
 
 	},
 

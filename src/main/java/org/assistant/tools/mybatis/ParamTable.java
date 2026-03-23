@@ -46,16 +46,8 @@ public class ParamTable extends BorderPane {
 			return;
 		}
 		treeTable.removeAllNodes();
-		// Get BoundSql with null parameter to see required mappings
-		BoundSql boundSql;
-		try {
-			boundSql = ms.getBoundSql(null);
-		} catch (Exception e) {
-			ExceptionDialog.showError(this, e);
-			return;
-		}
-		final ParamNode root = getRootNode();
 
+		final ParamNode root = getRootNode();
 		fillParameterNodes1(ms.getSqlSource(), root);
 
 		treeTable.updateUI();
